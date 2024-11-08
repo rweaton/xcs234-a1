@@ -1,211 +1,313 @@
 #!/usr/bin/env python3
 import unittest
 import random
-import sys
-import copy
 import argparse
 import inspect
-import collections
-import os
-import pickle
-import gzip
 from graderUtil import graded, CourseTestRunner, GradedTestCase
-import gym
 import numpy as np
 
 # Import student submission
+from randommdp import RandomMDP
+from riverswim import RiverSwim
+
 import submission
-
-
-#############################################
-# HELPER FUNCTIONS FOR CREATING TEST INPUTS #
-#############################################
-
-DET4 = [
-    0.59,
-    0.656,
-    0.729,
-    0.656,
-    0.656,
-    0.0,
-    0.81,
-    0.0,
-    0.729,
-    0.81,
-    0.9,
-    0.0,
-    0.0,
-    0.9,
-    1.0,
-    0.0,
-]  # True values of states in Deterministic-4x4-FrozenLake-v1
-HOLES4 = [5, 7, 11, 12, 15]  # Location of holes in Deterministic-4x4-FrozenLake-v1
-
-### BEGIN_HIDE ###
-### END_HIDE ###
-
-
-def _policy_performance(env, algorithm, num_episodes, gamma=0.9, tol=1e-3):
-    """
-    Runs RL algorithm for a number of episodes and returns the average reward per episode.
-    """
-    _, final_p = algorithm(
-        env.P, env.observation_space.n, env.action_space.n, gamma, tol
-    )
-    policy = final_p.astype(int)
-    sum_rewards = 0
-    for _ in range(num_episodes):
-        episode_reward = 0
-        state, info = env.reset()
-        terminated, truncated = False, False
-        count = 0
-        while not (terminated or truncated) and count < 10000:
-            action = policy[state]
-            state, reward, terminated, truncated, info = env.step(action)
-            episode_reward += reward
-            count += 1
-        sum_rewards += episode_reward
-    return float(sum_rewards) / float(num_episodes)
-
-
-def mask_policy4(policy):
-    """
-    Masks the location of holes in the Deterministic-4x4-FrozenLake-v0 environment.
-    """
-    for i in HOLES4:
-        policy[i] = 0
-
-
-### BEGIN_HIDE ###
-### END_HIDE ###
 
 
 #########
 # TESTS #
 #########
 
+class BaseTest(GradedTestCase):
+    def setUp(self):
+        self.seed = 5678
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+        self.num_test_mdps = 100
+        self.rswim_weak_test = RiverSwim('WEAK')
+        self.rswim_weak = RiverSwim('WEAK', self.seed)
+        self.rswim_medium = RiverSwim('MEDIUM', self.seed)
+        self.rswim_strong = RiverSwim('STRONG', self.seed)
+        self.rswim_envs = [self.rswim_weak, self.rswim_medium, self.rswim_strong]
+        self.rswim_env_names = ['WEAK', 'MEDIUM', 'STRONG']
+        self.gammas = [[0.67, 0.68, 0.99], [0.77, 0.78], [0.93, 0.94]]
+        self.tol = 0.001
 
-class Test_4a(GradedTestCase):
-    @graded(timeout=1, is_hidden=False)
+class Test_1a(BaseTest):
+    def setUp(self):
+        super().setUp()
+        self.state = 0
+        self.action = 0
+        self.R = np.array([[1, 2], [3, 4]])
+        self.T = np.array([
+            [[0.5, 0.5], [0.8, 0.2]],
+            [[0.2, 0.8], [0.3, 0.7]]
+        ])
+        self.gamma = 0.9
+        self.V = np.array([10, 20])
+
+    @graded()
     def test_0(self):
-        """4a-0-basic: Test policy evaluation on 4x4 deterministic environment"""
-        env = gym.make("Deterministic-4x4-FrozenLake-v1")
-        policy = np.array([1, 2, 0, 0, 1, 0, 1, 0, 2, 0, 1, 0, 3, 2, 2, 0])
-        true_value_function = [
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            0.81,
-            0.0,
-            0.0,
-            0.0,
-            0.9,
-            0.0,
-            0.0,
-            0.9,
-            1.0,
-            0.0,
-        ]
-        value_function = submission.policy_evaluation(
-            env.P,
-            env.observation_space.n,
-            env.action_space.n,
-            policy,
-            gamma=0.9,
-            tol=1e-3,
-        )
-        for i in range(len(value_function)):
-            self.assertAlmostEqual(
-                value_function[i], true_value_function[i], delta=0.001
-            )
+        """1a-0-basic: Bellman backup expected type"""
+        backup_val = submission.bellman_backup(self.state, self.action, self.R, self.T, self.gamma, self.V)
+        self.assertIsInstance(backup_val, float, msg=f"Expected type float but got {type(backup_val).__name__}")
 
-    ### BEGIN_HIDE ###
-### END_HIDE ###
-
-
-class Test_4b(GradedTestCase):
-    @graded(timeout=1, is_hidden=False)
-    def test_0(self):
-        """4b-0-basic: Test policy improvement on 4x4 deterministic environment"""
-        env = gym.make("Deterministic-4x4-FrozenLake-v1")
-        val = np.array(
-            [
-                0.063,
-                0.0,
-                0.071,
-                0.0,
-                0.086,
-                0.0,
-                0.11,
-                0.0,
-                0.141,
-                0.244,
-                -0.297,
-                0.0,
-                0.0,
-                0.378,
-                0.638,
-                0.0,
-            ]
-        )
-        policy = np.array([0, 3, 0, 3, 1, 0, 2, 0, 2, 1, 0, 0, 1, 2, 1, 1])
-        true_policy = [1, 2, 1, 0, 1, 0, 3, 0, 2, 1, 1, 0, 0, 2, 2, 0]
-        mask_policy4(true_policy)
-        new_policy = submission.policy_improvement(
-            env.P, env.observation_space.n, env.action_space.n, val, policy, gamma=0.9
-        ).tolist()
-        mask_policy4(new_policy)
-        self.assertListEqual(new_policy, true_policy)
-
-    ### BEGIN_HIDE ###
-### END_HIDE ###
-
-
-class Test_4c(GradedTestCase):
-    @graded(timeout=1, is_hidden=False)
-    def test_0(self):
-        """4c-0-basic: Test PI values on 4x4 deterministic environment"""
-        env = gym.make("Deterministic-4x4-FrozenLake-v1")
-        final_v, _ = submission.policy_iteration(
-            env.P, env.observation_space.n, env.action_space.n, 0.9, 1e-3
-        )
-        for i in range(len(final_v)):
-            self.assertAlmostEqual(final_v[i], DET4[i], delta=0.001)
-
-    @graded(timeout=1, is_hidden=False)
+    @graded()
     def test_1(self):
-        """4c-1-basic: Test PI performance on 4x4 deterministic environment"""
-        env = gym.make("Deterministic-4x4-FrozenLake-v1")
-        performance = _policy_performance(env, submission.policy_iteration, 1)
-        self.assertGreaterEqual(performance, 0.999)
+        """1a-1-basic: Bellman backup expected value"""
+        expected_backup_val = 14.5
+        backup_val = submission.bellman_backup(self.state, self.action, self.R, self.T, self.gamma, self.V)
+        self.assertAlmostEqual(backup_val, expected_backup_val, delta=self.tol, msg=f"Expected {expected_backup_val} but got {backup_val}")
 
     ### BEGIN_HIDE ###
-### END_HIDE ###
+    ### END_HIDE ###
 
 
-class Test_4d(GradedTestCase):
-    @graded(timeout=1, is_hidden=False)
+class Test_1b(BaseTest):
+    def setUp(self):
+        super().setUp()
+        self.R = np.array([[1, 2], [3, 4]])
+        self.T = np.array([
+            [[0.5, 0.5], [0.8, 0.2]],
+            [[0.2, 0.8], [0.3, 0.7]]
+        ])
+    
+    @graded()
     def test_0(self):
-        """4d-0-basic: Test values from VI on 4x4 deterministic environment"""
-        env = gym.make("Deterministic-4x4-FrozenLake-v1")
-        final_v, _ = submission.value_iteration(
-            env.P, env.observation_space.n, env.action_space.n, 0.9, 1e-3
+        """1b-0-basic: Policy evaluation expected type and shape"""
+        policy = np.array([0, 1])
+        gamma = 0.9
+        value_function = submission.policy_evaluation(policy, self.R, self.T, gamma)
+        expected_shape = (2,)
+        self.assertIsInstance(value_function, np.ndarray, msg=f"Expected type np.ndarray but got {type(value_function).__name__}")
+        self.assertEqual(
+            value_function.shape, expected_shape,
+            msg=f"Expected shape {expected_shape} but got {value_function.shape}"
         )
-        for i in range(len(final_v)):
-            self.assertAlmostEqual(final_v[i], DET4[i], delta=0.001)
-
-    @graded(timeout=1, is_hidden=False)
+    
+    @graded()
     def test_1(self):
-        """4d-1-basic: Test performance of VI on 4x4 deterministic environment"""
-        env = gym.make("Deterministic-4x4-FrozenLake-v1")
-        performance = _policy_performance(env, submission.value_iteration, 1)
-        self.assertGreaterEqual(performance, 0.999)
+        """1b-1-basic: Policy evaluation expected value"""
+        policy = np.array([0, 1])
+        gamma = 0.9
+        value_function = submission.policy_evaluation(policy, self.R, self.T, gamma)
+        expected_value_function = np.array([26.455, 30.113])
+        self.assertTrue(
+            np.allclose(value_function, expected_value_function, atol=self.tol),
+            msg=f"Expected {expected_value_function} but got {value_function}"
+        )    
+
+    @graded()
+    def test_2(self):
+        """1b-2-basic: Policy evaluation when gamma is zero"""
+        policy = np.array([0, 1])
+        gamma = 0.0
+        value_function = submission.policy_evaluation(policy, self.R, self.T, gamma)
+        expected_value_function = np.array([self.R[0, 0], self.R[1, 1]])
+        self.assertTrue(
+            np.allclose(value_function, expected_value_function, atol=self.tol),
+            msg=f"Policy evaluation with gamma=0 did not return immediate rewards. Expected {expected_value_function} but got {value_function}."
+        )
+    
+    @graded()
+    def test_3(self):
+        """1b-3-basic: Policy evaluation when all rewards are zero"""
+        R = np.zeros((2, 2))
+        policy = np.array([0, 1])
+        gamma = 0.9
+        value_function = submission.policy_evaluation(policy, R, self.T, gamma)
+        expected_value_function = np.zeros(2)
+        self.assertTrue(
+            np.allclose(value_function, expected_value_function, atol=self.tol), 
+            msg=f"Policy evaluation with zero rewards did not return a zero value function. Expected {expected_value_function} but got {value_function}."
+        )
+        
+    ### BEGIN_HIDE ###
+    ### END_HIDE ###
+
+class Test_1c(BaseTest):
+    def setUp(self):
+        super().setUp()
+    
+    @graded()
+    def test_0(self):
+        """1c-0-basic: Policy improvement expected type and shape"""
+        R = np.array([[10, 0], [0, 5]])
+        T = np.array([[[1, 0], [0, 1]],
+                   [[1, 0], [0, 1]]])
+        V_policy = np.array([10, 20])
+        gamma = 0.9
+        expected_shape = (2,)
+        improved_policy = submission.policy_improvement(R, T, V_policy, gamma)
+        self.assertIsInstance(improved_policy, np.ndarray, msg=f"Expected type np.ndarray but got {type(improved_policy).__name__}")
+        self.assertEqual(
+            improved_policy.shape, expected_shape,
+            msg=f"Expected shape {expected_shape} but got {improved_policy.shape}"
+        )
+    
+    @graded()
+    def test_1(self):
+        """1c-1-basic: Policy improvement expected policy does not change"""
+        R = np.array([[1, 2], [2, 1]])
+        T = np.array([[[0.5, 0.5], [0.5, 0.5]], 
+                   [[0.5, 0.5], [0.5, 0.5]]])
+        V_policy = np.array([10, 20])
+        gamma = 0.5
+        new_policy = submission.policy_improvement(R, T, V_policy, gamma)
+        expected_policy = np.array([1, 0])
+        assert np.array_equal(new_policy, expected_policy), f"Expected {expected_policy} but got {new_policy}"
+    
+    @graded()
+    def test_2(self):
+        """1c-2-basic: Policy improvement selects optimal policy"""
+        R = np.array([[0, 10], [10, 0]])
+        T = np.array([[[1, 0], [0, 1]], 
+                   [[1, 0], [0, 1]]])
+        V_policy = np.array([5, 5])
+        gamma = 0.9
+        new_policy = submission.policy_improvement(R, T, V_policy, gamma)
+        expected_policy = np.array([1, 0])
+        assert np.array_equal(new_policy, expected_policy), f"Expected {expected_policy} but got {new_policy}"
+    
+    ### BEGIN_HIDE ###
+    ### END_HIDE ###
+
+class Test_1d(BaseTest):
+    def setUp(self):
+        super().setUp()
+
+    @graded()
+    def test_0(self):
+        """1d-0-basic: Policy iteration expected types and shapes"""
+        R = np.array([[10, 0], [0, 5]])
+        T = np.array([[[1, 0], [0, 1]],
+                   [[1, 0], [0, 1]]])
+        policy = np.array([0, 1])
+        gamma = 0.9
+        expected_shape = (2,)
+        V_policy, policy = submission.policy_iteration(R, T, gamma)
+        self.assertIsInstance(V_policy, np.ndarray, msg=f"Expected type np.ndarray but got {type(V_policy).__name__}")
+        self.assertIsInstance(policy, np.ndarray, msg=f"Expected type np.ndarray but got {type(policy).__name__}")
+        self.assertEqual(
+            V_policy.shape, expected_shape,
+            msg=f"Expected shape {expected_shape} but got {V_policy.shape} for value function"
+        )
+        self.assertEqual(
+            policy.shape, expected_shape,
+            msg=f"Expected shape {expected_shape} but got {policy.shape} for policy"
+        )
+
+    @graded()
+    def test_1(self):
+        """1d-1-basic: Policy iteration expected value function and policy"""
+        R = np.array([[1, 0], [0, 2]])
+        T = np.array([[[1, 0], [0, 0]], [[0, 1], [0, 0]]])
+        gamma = 0.9
+        V_policy, policy = submission.policy_iteration(R, T, gamma)
+        expected_V_policy = np.array([9.991, 2.0])
+        expected_policy = np.array([0, 1])
+
+        assert np.array_equal(policy, expected_policy), f"Expected {expected_policy} but got {policy}"
+        assert np.allclose(V_policy, expected_V_policy, atol=self.tol), f"Expected {expected_V_policy} but got {V_policy}"
+    
+    @graded()
+    def test_2(self):
+        """1d-2-basic: Policy iteration with zero rewards"""
+        R = np.zeros((3, 2))
+        T = np.array([[[0.5, 0.5, 0], [0, 0, 1]],
+                      [[0.3, 0.7, 0], [0, 0, 1]],
+                      [[0.1, 0.9, 0], [0, 0, 1]]])
+        gamma = 0.9
+        V_policy, policy = submission.policy_iteration(R, T, gamma)
+        expected_V_policy = np.zeros(3)
+        expected_policy = np.zeros(3, dtype=int)
+
+        assert np.array_equal(policy, expected_policy), f"Expected {expected_policy} but got {policy}"
+        assert np.allclose(V_policy, expected_V_policy, atol=self.tol), f"Expected {expected_V_policy} but got {V_policy}"
+    
+    @graded()
+    def test_3(self):
+        """1d-3-basic: Policy iteration with gamma=0.99 and WEAK current"""
+        R, T = self.rswim_weak_test.get_model()
+        gamma = 0.99
+        tol = 0.001
+        V_policy, policy = submission.policy_iteration(R, T, gamma, tol)
+        expected_V_policy = np.array([30.693, 31.211, 32.382, 33.78, 35.29,  36.881])
+        expected_policy = np.array([1, 1, 1, 1, 1, 1])
+        assert np.array_equal(policy, expected_policy), f"Expected {expected_policy} but got {policy}"
+        assert np.allclose(V_policy, expected_V_policy, atol=self.tol), f"Expected {expected_V_policy} but got {V_policy}"
 
     ### BEGIN_HIDE ###
-### END_HIDE ###
+    ### END_HIDE ###
+
+
+class Test_1e(BaseTest):
+    def setUp(self):
+        super().setUp()
+    
+    @graded()
+    def test_0(self):
+        """1e-0-basic: Value iteration expected types and shapes"""
+        R = np.array([[10, 0], [0, 5]])
+        T = np.array([[[1, 0], [0, 1]],
+                   [[1, 0], [0, 1]]])
+        gamma = 0.9
+        expected_shape = (2,)
+        V, policy = submission.value_iteration(R, T, gamma)
+        self.assertIsInstance(V, np.ndarray, msg=f"Expected type np.ndarray but got {type(V).__name__}")
+        self.assertIsInstance(policy, np.ndarray, msg=f"Expected type np.ndarray but got {type(policy).__name__}")
+        self.assertEqual(
+            V.shape, expected_shape,
+            msg=f"Expected shape {expected_shape} but got {V.shape} for value function"
+        )
+        self.assertEqual(
+            policy.shape, expected_shape,
+            msg=f"Expected shape {expected_shape} but got {policy.shape} for policy"
+        )
+
+
+    
+    @graded()
+    def test_1(self):
+        """1e-1-basic: Value iteration expected value function and policy"""
+        R = np.array([[1, 0], [0, 2]])
+        T = np.array([[[1, 0], [0, 0]], [[0, 1], [0, 0]]])
+        gamma = 0.9
+        V, policy = submission.value_iteration(R, T, gamma)
+        expected_V = np.array([9.991, 2.0])
+        expected_policy = np.array([0, 1])
+
+        assert np.array_equal(policy, expected_policy), f"Expected {expected_policy} but got {policy}"
+        assert np.allclose(V, expected_V, atol=self.tol), f"Expected {expected_V} but got {V}"
+    
+    @graded()
+    def test_2(self):
+        """1e-2-basic: Value iteration with zero rewards"""
+        R = np.zeros((3, 2))
+        T = np.array([[[0.5, 0.5, 0], [0, 0, 1]],
+                      [[0.3, 0.7, 0], [0, 0, 1]],
+                      [[0.1, 0.9, 0], [0, 0, 1]]])
+        gamma = 0.9
+        V, policy = submission.value_iteration(R, T, gamma)
+        expected_V = np.zeros(3)
+        expected_policy = np.zeros(3, dtype=int)
+
+        assert np.array_equal(policy, expected_policy), f"Expected {expected_policy} but got {policy}"
+        assert np.allclose(V, expected_V, atol=self.tol), f"Expected {expected_V} but got {V}"
+    
+    @graded()
+    def test_3(self):
+        """1e-3-basic: Value iteration with gamma=0.99 and WEAK current"""
+        R, T = self.rswim_weak_test.get_model()
+        gamma = 0.99
+        tol = 0.001
+        V, policy = submission.value_iteration(R, T, gamma, tol)
+        expected_V = np.array([30.693, 31.211, 32.382, 33.78, 35.29,  36.881])
+        expected_policy = np.array([1, 1, 1, 1, 1, 1])
+        assert np.array_equal(policy, expected_policy), f"Expected {expected_policy} but got {policy}"
+        assert np.allclose(V, expected_V, atol=self.tol), f"Expected {expected_V} but got {V}"
+    
+    ### BEGIN_HIDE ###
+    ### END_HIDE ###
 
 
 def getTestCaseForTestID(test_id):

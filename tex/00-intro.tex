@@ -1,10 +1,15 @@
 \section{Introduction}
 
-In this assignment, you will be exploring tabular solution methods. In particular, you will apply your understanding of MDPs to solve for the optimal paths an agent can take in a mobile game called \textit{Flappy Karel}. You will then learn to apply the performance difference lemma, which is a useful result used in convergence analysis of policy search methods. Afterwards you will have the opportunity to apply your knowledge of the Bellman operator to a time dependent variation of this operator. By the end of the assignment, you will implement both value iteration and policy iteration to solve for optimal value functions and policies in OpenAI's \href{https://www.gymlibrary.dev/environments/toy_text/frozen_lake/}{Frozen Lake} gym environment. \\
+In this assignment, you'll delve into the core principles of Reinforcement Learning by exploring Markov Decision Processes (MDPs) 
+and applying policy and value iteration techniques. Through a combination of coding tasks and written analyses, you'll gain 
+hands-on experience with implementing MDPs and evaluating policies. You'll start with a coding challenge that involves solving a 
+classic MDP problem, which will help you understand the iterative process of improving policies. You'll also examine how 
+different decision-making horizons can affect policy outcomes, and reflect on the implications of designing reward functions, 
+particularly in scenarios where unintended behaviors may emerge. This assignment will solidify your understanding of 
+these foundational RL concepts and prepare you for more advanced topics.
 
-Advice for this assignment:
-\begin{itemize}
-  \item Remember to activate the conda environment ~XCS234_Default~ defined in  ~src/environment.yml~ before developing and testing your code.
-
-  \item In question 1, when considering a unique optimal policy do not count actions from states with a wall directly to the right of them or terminal states.
-\end{itemize}
+\textbf{Deliverables}:
+\begin{enumerate}[(1)]
+    \item \texttt{submission.py}
+    \item Written solutions to the questions in this document
+\end{enumerate}
