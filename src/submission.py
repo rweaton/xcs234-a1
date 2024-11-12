@@ -22,7 +22,7 @@ def bellman_backup(state, action, R, T, gamma, V):
     -------
     backup_val: float
     """
-    backup_val = 0.
+    backup_val = None
     ############################
     ### START CODE HERE ###
     ### END CODE HERE ###
@@ -45,8 +45,8 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
     -------
     value_function: np.array (num_states)
     """
-    num_states, num_actions = R.shape
-    value_function = np.zeros(num_states)
+    num_states, _ = R.shape
+    value_function = None
 
     ############################
     ### START CODE HERE ###
@@ -70,7 +70,7 @@ def policy_improvement(R, T, V_policy, gamma):
     new_policy: np.array (num_states)
     """
     num_states, num_actions = R.shape
-    new_policy = np.zeros(num_states, dtype=int)
+    new_policy = None
 
     ############################
     ### START CODE HERE ###
@@ -94,9 +94,9 @@ def policy_iteration(R, T, gamma, tol=1e-3):
     V_policy: np.array (num_states)
     policy: np.array (num_states)
     """
-    num_states, num_actions = R.shape
-    V_policy = np.zeros(num_states)
-    policy = np.zeros(num_states, dtype=int)
+    num_states, _ = R.shape
+    V_policy = None
+    policy = None
     ############################
     ### START CODE HERE ###
     ### END CODE HERE ###
@@ -117,8 +117,8 @@ def value_iteration(R, T, gamma, tol=1e-3):
     policy: np.array (num_states)
     """
     num_states, num_actions = R.shape
-    value_function = np.zeros(num_states)
-    policy = np.zeros(num_states, dtype=int)
+    value_function = None
+    policy = None
     ############################
     ### START CODE HERE ###
     ### END CODE HERE ###
