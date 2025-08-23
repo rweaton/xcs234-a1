@@ -53,6 +53,57 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
 
     ############################
     ### START CODE HERE ###
+
+    # initialize iteration index
+    k = 1
+
+    # generate set of states
+    states = np.arange(0, num_states)
+
+    # set initial expected return function to zero 
+    # for each state
+    V_pi = np.zeros(num_states)
+
+    # force first iteration
+    norm_gt_tol = True
+
+    # Iteration block
+    while norm_gt_tol:
+
+        # obtain single Bellman backups for all 
+        # possible state-action pairs
+        single_bell_backups = bellman_backup(
+            state, action, R, T, gamma, V_pi
+        )
+
+        # enact policy by selecting policy-specified
+        # expected values from the collection of all
+        # single Bellman backups  
+        new_value_function = [
+            single_bell_backups[s, policy[s]] 
+            for s in states
+        ]
+
+        # Determine if new_value_function has diverged 
+        # from current value_function above tolerance 
+        norm_gt_tol = np.linalg.norm(
+            new_value_function - value_function,
+            ord=2
+        ) > tol
+
+        # If sufficient divergence, set up for next iteration
+        if norm_gt_tol:
+
+            # set new value function to current status 
+            # for next iteration
+            value_function = new_value_function
+
+            # update iteration index for next iteration
+            i += 1
+
+        ### NOTE: make sure value function and policy correctly correspond to each other!!!
+
+
     ### END CODE HERE ###
     ############################
     return value_function
@@ -138,6 +189,8 @@ def policy_iteration(R, T, gamma, tol=1e-3):
             policy = new_policy
             # update iteration index for next iteration
             i += 1
+
+        #### NOTE: make sure policy and V_policy correctly correspond!!!
 
     ### END CODE HERE ###
     ############################
