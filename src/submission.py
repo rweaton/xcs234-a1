@@ -25,6 +25,9 @@ def bellman_backup(state, action, R, T, gamma, V):
     backup_val = None
     ############################
     ### START CODE HERE ###
+
+    backup_val = R[state, action] + gamma * np.dot(T[state, action, :], V)
+
     ### END CODE HERE ###
     ############################
 
@@ -121,6 +124,16 @@ def value_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
+    # initialize 
+    policy = np.zeros(num_states)
+    V_pi_func = np.zeros(num_states)
+    states = np.arange(0, num_states)
+    actions = np.arange(0, num_actions)
+
+    single_bell_backups = np.array([[bellman_backup(s, a, R, T, gamma, V_pi_func) for a in actions] for s in states])
+    V_pi_func_next = np.max(single_bell_backups, dim=1)
+
+
     ### END CODE HERE ###
     ############################
     return value_function, policy
@@ -137,7 +150,15 @@ if __name__ == "__main__":
 
     R, T = env.get_model()
     discount_factor = 0.99
+    # print(f"Value of R: {R}")
+    # print(f"Value of T: {T}")
+    state = 2
+    action = 0
+    V_test = (-5.) * np.ones(T.shape[0])
+    backup_value = bellman_backup(state, action, R, T, discount_factor, V_test)
+    print(f"Bellman Backup value for state {state}, action {action} is {backup_value}.")
 
+    """
     print("\n" + "-" * 25 + "\nBeginning Policy Iteration\n" + "-" * 25)
 
     V_pi, policy_pi = policy_iteration(R, T, gamma=discount_factor, tol=1e-3)
@@ -149,3 +170,4 @@ if __name__ == "__main__":
     V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_vi)
     print([['L', 'R'][a] for a in policy_vi])
+    """
