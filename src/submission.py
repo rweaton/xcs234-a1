@@ -60,9 +60,10 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
     # generate set of states
     states = np.arange(0, num_states)
 
-    # set initial expected return function to zero 
+    # set initial expected return functions to zero 
     # for each state
-    V_pi = np.zeros(num_states)
+    value_function = np.zeros(num_states)
+    new_value_function = np.zeros(num_states)
 
     # force first iteration
     norm_gt_tol = True
@@ -73,8 +74,8 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
         # obtain single Bellman backups for all 
         # possible state-action pairs
         for state in states:
-            new_value_function = bellman_backup(
-                state, policy[state], R, T, gamma, V_pi
+            new_value_function[state] = bellman_backup(
+                state, policy[state], R, T, gamma, value_function
             )
 
         # Determine if new_value_function has diverged 
