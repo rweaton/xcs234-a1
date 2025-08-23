@@ -130,38 +130,29 @@ def value_iteration(R, T, gamma, tol=1e-3):
 
     # initialize targets for updating
     # policy = np.zeros(num_states)
-    V_pi_func = np.zeros(num_states)
+    value_function = np.zeros(num_states)
 
-    single_bell_backups = np.array(
-        [
-            [bellman_backup(s, a, R, T, gamma, V_pi_func) for a in actions] 
-            for s in states
-        ]
-    )
-    policy = np.argmax(single_bell_backups, axis=1)
-    V_pi_func_next = single_bell_backups[:, policy]
-
-    norm_gt_tol = np.linalg.norm(
-        V_pi_func_next - V_pi_func, 
-        ord=np.inf
-    ) > tol
+    # ensure first iteration
+    norm_gt_tol = True
 
     while norm_gt_tol:
         single_bell_backups = np.array(
             [
-                [bellman_backup(s, a, R, T, gamma, V_pi_func) for a in actions] 
+                [
+                    bellman_backup(s, a, R, T, gamma, value_function)
+                    for a in actions
+                ] 
                 for s in states
             ]
         )
         policy = np.argmax(single_bell_backups, axis=1)
-        V_pi_func_next = single_bell_backups[:, policy]
+        value_function_next = single_bell_backups[:, policy]
 
         norm_gt_tol = np.linalg.norm(
-            V_pi_func_next - V_pi_func,
+            value_function_next  - value_function,
             ord=np.inf
         ) > tol
-        V_pi_func = V_pi_func_next
-
+        value_function = value_function_next
 
     ### END CODE HERE ###
     ############################
