@@ -123,16 +123,22 @@ def policy_improvement(R, T, V_policy, gamma):
     ############################
     ### START CODE HERE ###
 
+    # Initialize state_action value Q_pi, states 
+    # actions sets for iteration block
     Q_pi = np.zeros((num_states, num_actions))
     states = np.arange(0, num_states)
     actions = np.arange(0, num_actions)
     
+    # Compute expected return for each possible
+    # state-action pair under current policy
     for state in states:
         for action in actions:
             Q_pi[state, action] = bellman_backup(
                 state, action, R, T, gamma, V_policy
             )
 
+    # Produce new policy by selecting the action with 
+    # the most expected reward for each state
     new_policy = np.argmax(Q_pi, axis=1)
     ### END CODE HERE ###
     ############################
