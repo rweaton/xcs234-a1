@@ -102,6 +102,43 @@ def policy_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
+
+    # set iteration index
+    i = 0
+
+    # Randomly generate initial policy
+    _, num_actions = R.shape
+    actions_set = np.arange(0, num_actions)
+    policy = np.random.choice(
+        actions_set,
+        size=num_states,
+        replace=True
+    )
+
+    # force first iteration
+    norm_gt_tol = True
+
+    # iteration block
+    while norm_gt_tol:
+
+        # Calculate expected return for each state of current policy
+        V_policy = policy_evaluation(policy, R, T, gamma, tol)
+
+        # Use expected returns to update current policy to new policy
+        new_policy = policy_improvement(R, T, V_policy, gamma)
+
+        # Determine if new_policy has deviated from current policy above tolerance
+        norm_gt_tol = np.linalg.norm(
+            new_policy - policy,
+            ord=1
+        ) > tol
+
+        if norm_gt_tol:
+            # set new policy to current policy for next iteration
+            policy = new_policy
+            # update iteration index for next iteration
+            i += 1
+
     ### END CODE HERE ###
     ############################
     return V_policy, policy
@@ -138,6 +175,8 @@ def value_iteration(R, T, gamma, tol=1e-3):
     norm_gt_tol = True
 
     while norm_gt_tol:
+
+        # report progress
         if (iteration_count % 10) == 0:
             print(f"Beginning iteration: {iteration_count}")
             current_policy = [['L', 'R'][a] for a in policy]
@@ -164,8 +203,24 @@ def value_iteration(R, T, gamma, tol=1e-3):
             value_function_next  - value_function,
             ord=np.inf
         ) > tol
-        value_function = value_function_next
-        iteration_count += 1
+
+
+        if norm_gt_tol == False:
+            # iterate a final step using V_next
+            single_bell_backups = np.array(
+                [
+                    [
+                        bellman_backup(s, a, R, T, gamma, value_function_next)
+                        for a in actions
+                    ] 
+                    for s in states
+                ]
+            )
+            policy = np.argmax(single_bell_backups, axis=1)            
+
+        else:
+            value_function = value_function_next
+            iteration_count += 1
 
     ### END CODE HERE ###
     ############################
