@@ -72,17 +72,10 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
 
         # obtain single Bellman backups for all 
         # possible state-action pairs
-        single_bell_backups = bellman_backup(
-            state, action, R, T, gamma, V_pi
-        )
-
-        # enact policy by selecting policy-specified
-        # expected values from the collection of all
-        # single Bellman backups  
-        new_value_function = [
-            single_bell_backups[s, policy[s]] 
-            for s in states
-        ]
+        for state in states:
+            new_value_function = bellman_backup(
+                state, policy[state], R, T, gamma, V_pi
+            )
 
         # Determine if new_value_function has diverged 
         # from current value_function above tolerance 
@@ -128,6 +121,18 @@ def policy_improvement(R, T, V_policy, gamma):
 
     ############################
     ### START CODE HERE ###
+
+    Q_pi = np.zeros((num_states, num_actions))
+    states = np.arange(0, num_states)
+    actions = np.arange(0, num_actions)
+    
+    for state in states:
+        for action in actions:
+            Q_pi[state, action] = bellman_backup(
+                state, action, R, T, gamma, V_policy
+            )
+
+    new_policy = np.argmax(Q_pi, axis=1)
     ### END CODE HERE ###
     ############################
     return new_policy
