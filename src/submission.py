@@ -93,7 +93,7 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
             value_function = new_value_function
 
             # update iteration index for next iteration
-            i += 1
+            k += 1
 
         ### NOTE: make sure value function and policy correctly correspond to each other!!!
 
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     # value_function, policy = value_iteration(R, T, discount_factor, tol=1e-3)
     # print(f"Value function after value_iteration: {value_function}")
     # print(f"Policy after value_iteration: {policy}")
-    """
+    
     print("\n" + "-" * 25 + "\nBeginning Policy Iteration\n" + "-" * 25)
 
     V_pi, policy_pi = policy_iteration(R, T, gamma=discount_factor, tol=1e-3)
@@ -328,3 +328,4 @@ if __name__ == "__main__":
     V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_vi)
     print([['L', 'R'][a] for a in policy_vi])
+    """
