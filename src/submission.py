@@ -124,6 +124,7 @@ def value_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
+
     # initialize iteration sets
     states = np.arange(0, num_states)
     actions = np.arange(0, num_actions)
@@ -131,11 +132,17 @@ def value_iteration(R, T, gamma, tol=1e-3):
     # initialize targets for updating
     # policy = np.zeros(num_states)
     value_function = np.zeros(num_states)
+    iteration_count = 1
 
-    # ensure first iteration
+    # force first iteration
     norm_gt_tol = True
 
     while norm_gt_tol:
+        if (iteration_count % 10) == 0:
+            print(f"Beginning iteration: {iteration_count}")
+            current_policy = [['L', 'R'][a] for a in policy]
+            print(f"Current policy: {current_policy}")
+        
         single_bell_backups = np.array(
             [
                 [
@@ -145,14 +152,20 @@ def value_iteration(R, T, gamma, tol=1e-3):
                 for s in states
             ]
         )
+        # print(f"Shape of single_bell_backups: {single_bell_backups.shape}")
         policy = np.argmax(single_bell_backups, axis=1)
-        value_function_next = single_bell_backups[:, policy]
+        # print(f"Shape of policy: {policy.shape}")
+        value_function_next = np.array(
+            [single_bell_backups[s, policy[s]] for s in states]
+        )
 
+        # print(f"Shape of value_function_next: {value_function_next.shape}")
         norm_gt_tol = np.linalg.norm(
             value_function_next  - value_function,
             ord=np.inf
         ) > tol
         value_function = value_function_next
+        iteration_count += 1
 
     ### END CODE HERE ###
     ############################
@@ -165,6 +178,8 @@ if __name__ == "__main__":
     SEED = 1234
 
     RIVER_CURRENT = 'WEAK'
+    # RIVER_CURRENT = 'MEDIUM'
+    # RIVER_CURRENT = 'STRONG'
     assert RIVER_CURRENT in ['WEAK', 'MEDIUM', 'STRONG']
     env = RiverSwim(RIVER_CURRENT, SEED)
 
@@ -178,16 +193,18 @@ if __name__ == "__main__":
     backup_value = bellman_backup(state, action, R, T, discount_factor, V_test)
     print(f"Bellman Backup value for state {state}, action {action} is {backup_value}.")
 
+    # value_function, policy = value_iteration(R, T, discount_factor, tol=1e-3)
+    # print(f"Value function after value_iteration: {value_function}")
+    # print(f"Policy after value_iteration: {policy}")
     """
     print("\n" + "-" * 25 + "\nBeginning Policy Iteration\n" + "-" * 25)
 
     V_pi, policy_pi = policy_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_pi)
     print([['L', 'R'][a] for a in policy_pi])
-
+    """
     print("\n" + "-" * 25 + "\nBeginning Value Iteration\n" + "-" * 25)
 
     V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_vi)
     print([['L', 'R'][a] for a in policy_vi])
-    """
