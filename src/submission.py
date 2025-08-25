@@ -26,8 +26,8 @@ def bellman_backup(state, action, R, T, gamma, V):
     ############################
     ### START CODE HERE ###
 
-    backup_val = R[state, action] + gamma * np.dot(T[state, action, :], V)
-
+    # backup_val = R[state, action] + gamma * np.dot(T[state, action, :], V)
+    backup_val = R[state, action] + gamma * np.inner(T[state, action, :], V)
     ### END CODE HERE ###
     ############################
 
@@ -66,10 +66,11 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
     new_value_function = np.zeros(num_states)
 
     # force first iteration
-    norm_gt_tol = True
+    # norm_gt_tol = True
+    norm_lt_tol = False
 
     # Iteration block
-    while norm_gt_tol:
+    while (not norm_lt_tol):
 
         # obtain single Bellman backups for all 
         # possible state-action pairs
@@ -77,26 +78,37 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
             new_value_function[state] = bellman_backup(
                 state, policy[state], R, T, gamma, value_function
             )
+        # print(f"Value of value_function: {value_function}")
+        # print(f"Value of new_value_function: {new_value_function}")
 
         # Determine if new_value_function has diverged 
-        # from current value_function above tolerance 
-        norm_gt_tol = np.linalg.norm(
-            new_value_function - value_function,
-            ord=2
-        ) > tol
+        # from current value_function above tolerance
+        value_differences = new_value_function - value_function
+        norm_of_diff = np.linalg.norm(
+            value_differences,
+            # ord=1,
+            # ord=2
+            ord=np.inf,
+            axis=0
+        ) 
+
+        # norm_of_diff =j; np.max(np.abs(value_differences))
+        norm_lt_tol = norm_of_diff < tol
+
+        # print(f"Value of norm_of_diff: {value_difference}, value of norm_gt_tol: {norm_gt_tol}")
 
         # If sufficient divergence, set up for next iteration
-        if norm_gt_tol:
+        if not norm_lt_tol:
 
             # set new value function to current status 
             # for next iteration
-            value_function = new_value_function
+            value_function = new_value_function.copy()
 
             # update iteration index for next iteration
             k += 1
 
-        ### NOTE: make sure value function and policy correctly correspond to each other!!!
-
+    ### NOTE: make sure value function and policy correctly correspond to each other!!!
+    print(f"Number of iterations to convergence: {k}")
 
     ### END CODE HERE ###
     ############################
@@ -177,12 +189,13 @@ def policy_iteration(R, T, gamma, tol=1e-3):
         size=num_states,
         replace=True
     )
+    print(f"Initial policy: policy: {policy}")
 
     # force first iteration
-    norm_gt_tol = True
+    norm_gt_zero = True
 
     # iteration block
-    while norm_gt_tol:
+    while norm_gt_zero:
 
         # Calculate expected return for each state of current policy
         V_policy = policy_evaluation(policy, R, T, gamma, tol)
@@ -191,18 +204,19 @@ def policy_iteration(R, T, gamma, tol=1e-3):
         new_policy = policy_improvement(R, T, V_policy, gamma)
 
         # Determine if new_policy has deviated from current policy above tolerance
-        norm_gt_tol = np.linalg.norm(
+        norm_gt_zero = np.linalg.norm(
             new_policy - policy,
             ord=1
-        ) > tol
+        ) > 0
 
-        if norm_gt_tol:
+        if norm_gt_zero:
             # set new policy to current policy for next iteration
-            policy = new_policy
+            policy = new_policy.copy()
+
             # update iteration index for next iteration
             i += 1
 
-        #### NOTE: make sure policy and V_policy correctly correspond!!!
+    #### NOTE: make sure policy and V_policy correctly correspond!
 
     ### END CODE HERE ###
     ############################
@@ -242,10 +256,12 @@ def value_iteration(R, T, gamma, tol=1e-3):
     while norm_gt_tol:
 
         # report progress
+        """
         if (iteration_count % 10) == 0:
             print(f"Beginning iteration: {iteration_count}")
             current_policy = [['L', 'R'][a] for a in policy]
             print(f"Current policy: {current_policy}")
+        """
         
         single_bell_backups = np.array(
             [
@@ -271,6 +287,7 @@ def value_iteration(R, T, gamma, tol=1e-3):
 
 
         if norm_gt_tol == False:
+            
             # iterate a final step using V_next
             single_bell_backups = np.array(
                 [
@@ -281,8 +298,8 @@ def value_iteration(R, T, gamma, tol=1e-3):
                     for s in states
                 ]
             )
-            policy = np.argmax(single_bell_backups, axis=1)            
-
+            policy = np.argmax(single_bell_backups, axis=1)          
+            value_function = value_function_next
         else:
             value_function = value_function_next
             iteration_count += 1
@@ -305,8 +322,8 @@ if __name__ == "__main__":
 
     R, T = env.get_model()
     discount_factor = 0.99
-    # print(f"Value of R: {R}")
-    # print(f"Value of T: {T}")
+    print(f"Value of R: {R}")
+    print(f"Value of T: {T}")
     state = 2
     action = 0
     V_test = (-5.) * np.ones(T.shape[0])
