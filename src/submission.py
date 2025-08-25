@@ -66,7 +66,6 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
     new_value_function = np.zeros(num_states)
 
     # force first iteration
-    # norm_gt_tol = True
     norm_lt_tol = False
 
     # Iteration block
@@ -86,24 +85,17 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
         value_differences = new_value_function - value_function
         norm_of_diff = np.linalg.norm(
             value_differences,
-            # ord=1,
-            # ord=2
             ord=np.inf,
             axis=0
-        ) 
-
-        # norm_of_diff =j; np.max(np.abs(value_differences))
+        )
         norm_lt_tol = norm_of_diff < tol
 
-        # print(f"Value of norm_of_diff: {value_difference}, value of norm_gt_tol: {norm_gt_tol}")
+        # set new value function to current status 
+        # for next iteration or function return
+        value_function = new_value_function.copy()
 
-        # If sufficient divergence, set up for next iteration
+        # If outside tolerance, set up for next iteration
         if not norm_lt_tol:
-
-            # set new value function to current status 
-            # for next iteration
-            value_function = new_value_function.copy()
-
             # update iteration index for next iteration
             k += 1
 
@@ -199,6 +191,7 @@ def policy_iteration(R, T, gamma, tol=1e-3):
 
         # Calculate expected return for each state of current policy
         V_policy = policy_evaluation(policy, R, T, gamma, tol)
+        print(f"Value of V_policy: {V_policy}")
 
         # Use expected returns to update current policy to new policy
         new_policy = policy_improvement(R, T, V_policy, gamma)
