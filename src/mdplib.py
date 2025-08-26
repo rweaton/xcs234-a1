@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Union
-from riverswim import RiverSwim
+from inventory import Inventory
 
 np.set_printoptions(precision=3)
 
@@ -146,9 +146,34 @@ def value_iteration(
             )
             policy = np.argmax(single_bell_backups, axis=1)          
             value_function = value_function_next
-            
+
         else:
             value_function = value_function_next
             iteration_count += 1
 
     return value_function, policy
+
+if __name__ == "__main__":
+    SEED = 1234
+    INITIAL_STATE = 3
+
+    env = Inventory(INITIAL_STATE, SEED)
+
+    R, T = env.get_model()
+    discount_factor = 0.99
+    print(f"Value of R: {R}")
+    print(f"Value of T: {T}")
+    state = 2
+    action = 0
+    V_test = (-5.) * np.ones(T.shape[0])
+    backup_value = bellman_backup(state, action, R, T, discount_factor, V_test)
+    print(f"Bellman Backup value for state {state}, action {action} is {backup_value}.")
+
+    # value_function, policy = value_iteration(R, T, discount_factor, tol=1e-3)
+    # print(f"Value function after value_iteration: {value_function}")
+    # print(f"Policy after value_iteration: {policy}")
+    
+    print("\n" + "-" * 25 + "\nBeginning Value Iteration\n" + "-" * 25)
+    V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, tol=1e-3)
+    print(V_vi)
+    print([['sell', 'buy'][a] for a in policy_vi])
