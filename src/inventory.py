@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 class Inventory:
-    def __init__(self, current, seed=1234):
+    def __init__(self, init_state=3, seed=1234):
         self.num_states = 11
         self.num_actions = 2  # O <=> SELL, 1 <=> BUY
 
@@ -48,7 +48,7 @@ class Inventory:
 
         # Agent always starts with an inventory of 3
         # at the beginning of each episode
-        self.init_state = 3
+        self.init_state = init_state
         self.curr_state = self.init_state
 
         self.seed = seed
