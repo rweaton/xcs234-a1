@@ -100,7 +100,7 @@ def policy_evaluation(policy, R, T, gamma, tol=1e-3):
             k += 1
 
     ### NOTE: make sure value function and policy correctly correspond to each other!!!
-    print(f"Number of iterations to convergence: {k}")
+    # print(f"Number of iterations to convergence: {k}")
 
     ### END CODE HERE ###
     ############################
@@ -169,7 +169,8 @@ def policy_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
-
+    # heading_pi = "Running policy_iteration()..."
+    # print(heading_pi)
     # set iteration index
     i = 0
 
@@ -181,7 +182,7 @@ def policy_iteration(R, T, gamma, tol=1e-3):
         size=num_states,
         replace=True
     )
-    print(f"Initial policy: policy: {policy}")
+    # print(f"Initial policy: policy: {policy}")
 
     # force first iteration
     norm_gt_zero = True
@@ -191,7 +192,7 @@ def policy_iteration(R, T, gamma, tol=1e-3):
 
         # Calculate expected return for each state of current policy
         V_policy = policy_evaluation(policy, R, T, gamma, tol)
-        print(f"Value of V_policy: {V_policy}")
+        # print(f"Value of V_policy: {V_policy}")
 
         # Use expected returns to update current policy to new policy
         new_policy = policy_improvement(R, T, V_policy, gamma)
@@ -233,6 +234,8 @@ def value_iteration(R, T, gamma, tol=1e-3):
     policy = None
     ############################
     ### START CODE HERE ###
+    # heading_vi = "Running value_iteration()..."
+    # print(heading_vi)
 
     # initialize iteration sets
     states = np.arange(0, num_states)
@@ -332,10 +335,9 @@ if __name__ == "__main__":
     V_pi, policy_pi = policy_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_pi)
     print([['L', 'R'][a] for a in policy_pi])
-    """
+    
     print("\n" + "-" * 25 + "\nBeginning Value Iteration\n" + "-" * 25)
-
     V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, tol=1e-3)
     print(V_vi)
     print([['L', 'R'][a] for a in policy_vi])
-    """
+    
