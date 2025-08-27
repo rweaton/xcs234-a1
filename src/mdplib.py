@@ -32,14 +32,14 @@ def bellman_backup(
     ############################
     ### START CODE HERE ###
 
-    if R.axis == 2:
+    if len(R.shape) == 2:
         # backup_val = R[state, action] + gamma * np.dot(T[state, action, :], V)
         backup_val = (
             R[state, action] + 
             gamma * np.inner(T[state, action, :], V)
         )
 
-    elif R.axis == 3:
+    elif len(R.shape) == 3:
         backup_val = np.inner(
             (T[state, action, :]),
             (R[state, action, :] + gamma * V)
@@ -75,7 +75,11 @@ def value_iteration(
     elif isinstance(terminator, int):
         termination_type = 'finite_horizon'
 
-    num_states, num_actions = R.shape
+    if len(R.shape) == 2:
+        num_states, num_actions = R.shape
+    elif len(R.shape) == 3:
+        num_states, num_actions, _ = R.shape
+
     value_function = None
     policy = None
 
@@ -160,20 +164,25 @@ if __name__ == "__main__":
     env = Inventory(INITIAL_STATE, SEED)
 
     R, T = env.get_model()
-    discount_factor = 0.99
+    discount_factor = 1
+    terminator = 50
     print(f"Value of R: {R}")
     print(f"Value of T: {T}")
     state = 2
-    action = 0
-    V_test = (-5.) * np.ones(T.shape[0])
-    backup_value = bellman_backup(state, action, R, T, discount_factor, V_test)
-    print(f"Bellman Backup value for state {state}, action {action} is {backup_value}.")
+    action = 1
+    # V_test = (-5.) * np.ones(T.shape[0])
+    # backup_value = bellman_backup(state, action, R, T, discount_factor, V_test)
+    # print(f"Bellman Backup value for state {state}, action {action} is {backup_value}.")
 
     # value_function, policy = value_iteration(R, T, discount_factor, tol=1e-3)
     # print(f"Value function after value_iteration: {value_function}")
     # print(f"Policy after value_iteration: {policy}")
     
     print("\n" + "-" * 25 + "\nBeginning Value Iteration\n" + "-" * 25)
-    V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, tol=1e-3)
-    print(V_vi)
-    print([['sell', 'buy'][a] for a in policy_vi])
+    print(f"Using discount factor: {discount_factor}")
+    print(f"Using terminator value: {terminator}")
+    V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, terminator=terminator)
+    expected_returns = [(i, f"{v:.3f}") for i, v in enumerate(V_vi)]
+    print(f"State and its associated expected return (s, V_vi[s]): {expected_returns}")
+    policy_assignments = [(i, ['sell', 'buy'][a]) for i, a in enumerate(policy_vi)]
+    print(f"State and action for that state for policy (s, pi[a]): {policy_assignments}")
