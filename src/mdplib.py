@@ -71,9 +71,12 @@ def value_iteration(
 
     if isinstance(terminator, float):
         termination_type = 'indefinite_to_tol'
+        # record = None
 
     elif isinstance(terminator, int):
         termination_type = 'finite_horizon'
+        # record = [{} for _ in range(0, terminator + 1)]
+    # print(f"Value of termination_type: {termination_type}")
 
     if len(R.shape) == 2:
         num_states, num_actions = R.shape
@@ -93,6 +96,7 @@ def value_iteration(
     # initialize targets for updating
     # policy = np.zeros(num_states)
     value_function = np.zeros(num_states)
+
     iteration_count = 1
 
     # force first iteration
@@ -122,6 +126,12 @@ def value_iteration(
         # print(f"Shape of single_bell_backups: {single_bell_backups.shape}")
         policy = np.argmax(single_bell_backups, axis=1)
         # print(f"Shape of policy: {policy.shape}")
+        # if termination_type == 'finite_horizon':
+        #     record[iteration_count - 1] = dict(
+        #         current_value_function=value_function,
+        #         policy=policy,
+        #     )
+
         value_function_next = np.array(
             [single_bell_backups[s, policy[s]] for s in states]
         )
@@ -134,7 +144,7 @@ def value_iteration(
             ) > terminator
 
         elif termination_type == 'finite_horizon':
-            do_iterate = (iteration_count <= terminator)
+            do_iterate = (iteration_count < terminator)
 
         if do_iterate == False:
             
@@ -151,10 +161,17 @@ def value_iteration(
             policy = np.argmax(single_bell_backups, axis=1)          
             value_function = value_function_next
 
+            # if termination_type == 'finite_horizon':
+            #     record[iteration_count] = dict(
+            #         current_value_function=value_function,
+            #         policy=policy,
+            #     )
+
         else:
             value_function = value_function_next
             iteration_count += 1
 
+    # return value_function, policy, record
     return value_function, policy
 
 if __name__ == "__main__":
@@ -164,8 +181,11 @@ if __name__ == "__main__":
     env = Inventory(INITIAL_STATE, SEED)
 
     R, T = env.get_model()
-    discount_factor = 1
-    terminator = 50
+    # discount_factor = 0.99
+    # discount_factor = 1
+    terminator = 11
+    discount_factor = 0.9
+    # terminator = 1e-3
     print(f"Value of R: {R}")
     print(f"Value of T: {T}")
     state = 2
@@ -177,12 +197,41 @@ if __name__ == "__main__":
     # value_function, policy = value_iteration(R, T, discount_factor, tol=1e-3)
     # print(f"Value function after value_iteration: {value_function}")
     # print(f"Policy after value_iteration: {policy}")
-    
-    print("\n" + "-" * 25 + "\nBeginning Value Iteration\n" + "-" * 25)
-    print(f"Using discount factor: {discount_factor}")
-    print(f"Using terminator value: {terminator}")
-    V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, terminator=terminator)
-    expected_returns = [(i, f"{v:.3f}") for i, v in enumerate(V_vi)]
-    print(f"State and its associated expected return (s, V_vi[s]): {expected_returns}")
-    policy_assignments = [(i, ['sell', 'buy'][a]) for i, a in enumerate(policy_vi)]
-    print(f"State and action for that state for policy (s, pi[a]): {policy_assignments}")
+    if isinstance(terminator, int):
+        terminators = reversed(range(1, terminator + 1))
+        print(f"Value of terminators: {terminators}")
+        print("\n" + "-" * 25 + "\nBeginning Value Iteration\n" + "-" * 25)
+        print(f"Using discount factor: {discount_factor}")
+        for terminator in terminators:
+            print(f"\nUsing terminator value: {terminator}")
+            V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, terminator=terminator)
+            policy_assignments = [(i, ['sell', 'buy'][a]) for i, a in enumerate(policy_vi)]
+            print(f"State and action for that state for policy (s, pi[a]):\n {policy_assignments}")
+            expected_returns = [(i, f"{v:.3f}") for i, v in enumerate(V_vi)]
+            print(f"State and its associated expected return (s, V_vi[s]):\n {expected_returns}")
+
+    else:
+        V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, terminator=terminator)
+        print(f"\nUsing terminator value: {terminator}")
+        V_vi, policy_vi = value_iteration(R, T, gamma=discount_factor, terminator=terminator)
+        policy_assignments = [(i, ['sell', 'buy'][a]) for i, a in enumerate(policy_vi)]
+        print(f"State and action for that state for policy (s, pi[a]):\n {policy_assignments}")
+        expected_returns = [(i, f"{v:.3f}") for i, v in enumerate(V_vi)]
+        print(f"State and its associated expected return (s, V_vi[s]):\n {expected_returns}")
+
+    """
+    if record:
+        for iteration, vi_pair in enumerate(record):
+            V_vi = vi_pair["current_value_function"]
+            policy_vi = vi_pair["policy"]
+            print(f"Iteration: {iteration}")
+            expected_returns = [(i, f"{v:.3f}") for i, v in enumerate(V_vi)]
+            print(f"State and its associated expected return (s, V_vi[s]): {expected_returns}")
+            policy_assignments = [(i, ['sell', 'buy'][a]) for i, a in enumerate(policy_vi)]
+            print(f"State and action for that state for policy (s, pi[a]): {policy_assignments}")
+    else:
+        expected_returns = [(i, f"{v:.3f}") for i, v in enumerate(V_vi)]
+        print(f"State and its associated expected return (s, V_vi[s]): {expected_returns}")
+        policy_assignments = [(i, ['sell', 'buy'][a]) for i, a in enumerate(policy_vi)]
+        print(f"State and action for that state for policy (s, pi[a]): {policy_assignments}")
+    """
