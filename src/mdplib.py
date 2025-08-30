@@ -183,9 +183,10 @@ if __name__ == "__main__":
     R, T = env.get_model()
     # discount_factor = 0.99
     # discount_factor = 1
-    terminator = 11
-    discount_factor = 0.9
-    # terminator = 1e-3
+    # terminator = 11
+    # discount_factor = 0.9
+    discount_factor = 0.52
+    terminator = 1e-3
     print(f"Value of R: {R}")
     print(f"Value of T: {T}")
     state = 2
