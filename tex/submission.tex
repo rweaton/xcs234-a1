@@ -111,8 +111,8 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 							  & & $(buy, 7 \rightarrow 8, 0)$, $(buy, 8 \rightarrow 9, 0)$, \\
 							  & & $(buy, 9 \rightarrow 10, +100)$ \\
 	  \hline
-  	  \multirow{2}{*}{10} & \multirow{2}{*}{101} & < same as above for sequence entries 1 through 8 >, \\
-	   						  & & $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 rightarrow 10, 0)$ \\
+  	  \multirow{2}{*}{10} & \multirow{2}{*}{101} & $\langle$ same as above for sequence entries 1 through 8 $\rangle$, \\
+	   						  & & $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 \rightarrow 10, 0)$ \\
 	  \hline
   	  \multirow{6}{*}{11} & \multirow{6}{*}{102} & $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, \\
 	   						  & & $(buy, 1 \rightarrow 2, 0)$, $(buy, 2 \rightarrow 3, 0)$, \\ 
@@ -121,18 +121,20 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 							  & & $(buy, 7 \rightarrow 8, 0)$, $(buy, 8 \rightarrow 9, 0)$, \\
 							  & & $(buy, 9 \rightarrow 10, 100)$ \\
 	  \hline
-  	  \multirow{2}{*}{12} & \multirow{2}{*}{102} & < same as above for sequence entries 1 through 10 >, \\
-	  					      & & $(buy, 9 \rightarrow 10, 100)$, $(sell, 10 rightarrow 10, 0)$ \\
+  	  \multirow{2}{*}{12} & \multirow{2}{*}{102} & $\langle$ same as above for sequence entries 1 through 10 $\rangle$, \\
+	  					      & & $(buy, 9 \rightarrow 10, 100)$, $(sell, 10 \rightarrow 10, 0)$ \\
     \end{tabular}
     \end{center}
   \end{table}
 
-  For the Inventory MDP in this problem, an optimal policy can change dramatically depending on the number of steps that remain in the episode during 
-  execution before the horizon is reached.  Notice in the above table that expected return jumps from 4, for $H = 6$, to 100 for $H = 7$.  Also,
-  for the same two horizon settings, execution sequences transitioned from having both $buy$ and $sell$ actions when $H = 6$, to $buy$ only action 
-  when $H = 7$.
+  For the Inventory MDP in this problem, an optimal policy can change dramatically depending on the number of steps 
+  that remain in the episode during execution before the horizon is reached.  Notice in the above table that expected 
+  return jumps from 4, for $H = 6$, to 100 for $H = 7$.  Also, for the same two horizon settings, execution sequences 
+  transitioned from having both $buy$ and $sell$ actions when $H = 6$, to $buy$ only action when $H = 7$.
 
-  Inspection of the table reveals that execution sequences under the optimal policy contain both buy and sell actions when $4 \le H \le 6$ and when $H \ge 8$.
+  Inspection of the table also reveals that execution sequences under the optimal policy contain both $buy$ and $sell$ 
+  actions when $4 \le H \le 6$ and when $H \ge 8$.
+
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_2a
@@ -145,8 +147,8 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 % <SCPD_SUBMISSION_TAG>_2b
 \begin{answer}
   % ### START CODE HERE ###
-  Setting the horizon $\H \ge 7$ will result in an execution sequence under the optimal policy
-  that terminates with a fully stocked inventory.  See above table. Notice that a fully stocked inventory
+  Setting the horizon $H \ge 7$ will result in an execution sequence under the optimal policy
+  that terminates with a fully stocked inventory. See table in 2a.  Notice that a fully stocked inventory
   occurs regardless of whether the agent performs action selection in the terminal state $s_{10}$ or
   only enters into it without performing actions in that state.
   % ### END CODE HERE ###
@@ -162,14 +164,18 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 \begin{answer}
   % ### START CODE HERE ###
   In an infinite-horizon scenario with discount factor setting \gamma = 0:
-  1. When starting in state s = 3, the sequence of actions that the agent takes under the optimal
-  policy is (sell, 3 \rightarrow 2, +1), (sell, 2 \rightarrow 1, +1), (sell, 1 \rightarrow 0, +1), (sell, 0 \rightarrow 0, 0), (sell, 0 \rightarrow 0, 0), ...
-  ad infinitum.  The sequence cannot terminate as it never exits state transition 0 \rightarrow 0 loop 
-  caused by perpetual greedy action selection--the consequence of a myopic agent via setting $\gamma = 0$.
+  \begin{itemize}
+    \item When starting in state s = 3, the sequence of actions that the agent takes under the optimal
+    policy is $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, $(sell, 1 \rightarrow 0, +1)$, 
+    $(sell, 0 \rightarrow 0, 0)$, $(sell, 0 \rightarrow 0, 0)$, ... ad infinitum.  The sequence cannot terminate as 
+    it never exits state transition $0 \rightarrow 0$ loop caused by perpetual greedy action selection--the 
+    consequence of a myopic agent by setting $\gamma = 0$.
 
-  2. Similarly, for the scenario starting as s = 9, the execution squence under the optimal policy migrates
-  to the edge of the state space, in this case s = 10--the terminal state--due to the inability of the agent 
-  to consider non-local return possibilities.  The execution sequence is: (buy, 9 \rightarrow 10, 100), (sell, 10 \rightarrow 10, 0)
+    \item Similarly, for the scenario starting at $s = 9$, the execution sequence under the optimal policy migrates
+    to the edge of the state space, in this case $s = 10$--the terminal state--due to the inability of the agent 
+    to include non-local possibilities in calculations of future return.  The execution sequence is: 
+    $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 \rightarrow 10, 0)$
+  \end{itemize}
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_2c
