@@ -163,18 +163,18 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 % <SCPD_SUBMISSION_TAG>_2c
 \begin{answer}
   % ### START CODE HERE ###
-  In an infinite-horizon scenario with discount factor setting \gamma = 0:
+  In an infinite-horizon scenario with discount factor setting $\gamma = 0$:
   \begin{itemize}
-    \item When starting in state s = 3, the sequence of actions that the agent takes under the optimal
+    \item When starting in state $s = 3$, the sequence of actions that the agent takes under the optimal
     policy is $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, $(sell, 1 \rightarrow 0, +1)$, 
     $(sell, 0 \rightarrow 0, 0)$, $(sell, 0 \rightarrow 0, 0)$, ... ad infinitum.  The sequence cannot terminate as 
     it never exits state transition $0 \rightarrow 0$ loop caused by perpetual greedy action selection--the 
     consequence of a myopic agent by setting $\gamma = 0$.
 
-    \item Similarly, for the scenario starting at $s = 9$, the execution sequence under the optimal policy migrates
-    to the edge of the state space, in this case $s = 10$--the terminal state--due to the inability of the agent 
-    to include non-local possibilities in calculations of future return.  The execution sequence is: 
-    $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 \rightarrow 10, 0)$
+    \item For the scenario starting at $s = 9$, the execution sequence under the optimal policy migrates
+    to the edge of the state space, in this case $s = 10$ --the terminal state--due to the inability of the agent 
+    to include non-local possibilities in calculations of expected future return.  The complete execution sequence in 
+    this case is: $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 \rightarrow 10, 0)$.
   \end{itemize}
   % ### END CODE HERE ###
 \end{answer}
