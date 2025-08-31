@@ -72,8 +72,13 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 % <SCPD_SUBMISSION_TAG>_2a
 \begin{answer}
    % ### START CODE HERE ###
-  An optimal policy is one that maximizes expected cumulative future return from the current time step to the episode horizon (Sutton \& Barto, 2nd ed. p).  While the expected cumulative future return of the value function is unique in Markov Decision Processes, there may be multiple distinct policies capable of producing it; that is, an optimal policy that results from policy (or value) iteration is not necessarily unique.  In the table below, two different sequences
-  are capable of producing the same expected return with the same horizon setting $H = 4$.
+  An optimal policy is one that maximizes expected cumulative future return from the current time step 
+  to the episode horizon (Sutton \& Barto, 2nd ed. p54).  While the expected cumulative future return of 
+  the value function is unique in Markov Decision Processes, there may be multiple distinct policies capable 
+  of producing it; that is, an optimal policy that results from policy (or value) iteration is not necessarily 
+  unique.  In the table below, two different sequences are capable of producing the same expected return with 
+  the same horizon setting $H = 4$.
+
   \begin{table}[h!]
     \begin{center}
     \caption{Table listing the expected future cumulative return without discounting ($\gamma = 1$) and the execution sequence under optimal policy across horizon values $H$}
@@ -219,6 +224,36 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 % <SCPD_SUBMISSION_TAG>_3a
 \begin{answer}
   % ### START CODE HERE ###
+  To answer this question, we'll consider a scenario in which three human-operated cars (labeled by $H$) are traveling at
+  the same speed along a roadway about to intercept on on-ramp on which is a single autonomous vehicle (labelled by $A$).
+  We will consider a constant distance $d$ spanning the mergepoint of the onramp onto the main roadway to another endpoint,
+  say 1/4 mile farther down the road, and that all four vehicles will be traveling that stretch of road together without 
+  any of them turning off. The event of the autonomous vehicle merging will be labeled by $M$ and when it is stopped on the
+  on-ramp by $S$.
+
+  If the autonomous car merges onto the main roadway with velocity $v_{A,M}$ ahead of the other three human-operated 
+  cars that were traveling at $v_{H,S} > v_{A,M}$ prior to the merge event, then the human operators adjust reduce their 
+  speed to that of the autonomous vehicle to prevent collision.  In which case $v_{H, M} = v_{A, M}$.  So for the merge event
+  mean velocity and average time of travel over distance $d$ are respectively
+  \begin{center}
+    $$ \bar{v}_{M} = \frac{1}{4} (3 v_{H,M} + v_{A,M}) = v_{A,M} $$
+    $$ \bar{t}_{M} = \frac{d}{4} (\frac{3}{v_{H,M}} + \frac{1}{v_{A,M}}) = \frac{d}{v_{A,M}} $$
+  \end{center}
+
+  If the autonomous car is not allowed to merge so that the car's average velocity $v_{A,S} \rightarrow 0$, then correspondingly,
+  its average time of travel over distance $d$ becomes $t_{A,S} \rightarrow \infty$.  In this case of no merge event by 
+  the autonomous vehicle we have
+  \begin{center}
+    $$ \bar{v}_{S} = \lim{v_{A,S} to 0} \frac{1}{4} (3 v_{H,S} + v_{A,S}) = \frac{3}{4} v_{H,S}$$
+    $$ \bar{t}_{S} = \lim{v_{A,S} to 0} \frac{d}{4} (3 /frac{1}{v_{H,S}} + \frac{1}{v_{A,S}}) \approx \frac{d}{4 v_{H,S}} \rightarrow \infty $$
+  \end{center}
+
+  So, if $v_{H,S} > \frac{4}{3} v_{H,M}$ then $\bar{v}_{S} > \bar{v}_{M}$, that is, the average velocity of all four cars increases
+  eventhough the autonomous care remains motionless on the merge on-ramp. Notice that the average time of travel over distance $d$ in
+  this case $\bar{t}_{S}$ is much greater than the average time when the autonomous car performs the merge $\bar{t}_{M}$ since
+  \begin{center}
+    $$ \bar{t}_{M} = \frac{d}{v_{A,M}} \ll \lim{v_{A,S} to 0} \frac{d}{4 v_{H,S}} = \bar{t}_{S} $$
+  \end{center}
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_3a
