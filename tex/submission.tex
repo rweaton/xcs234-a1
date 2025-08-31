@@ -14,6 +14,7 @@
 \def\assignmentnum{1 }
 \def\assignmenttitle{XCS234 Assignment \assignmentnum}
 \input{macros}
+\usepackage{multirow}
 \begin{document}
 \pagestyle{myheadings} \markboth{}{\assignmenttitle}
 
@@ -32,35 +33,35 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 % <SCPD_SUBMISSION_TAG>_1f
 \begin{answer}
   % ### START CODE HERE ###
-  % \usepackage{color}
-  % \usepackage{tabularray}
-  \definecolor{Shark}{rgb}{0.121,0.137,0.156}
-  \begin{table}
-  \centering
-  \caption{Discount factor and corresponding expected returns for transitions to "left" (a=0) action selection at initial state (s=0)}
-  \begin{tblr}{
-    cell{1}{2} = {c=2}{fg=Shark},
-    cell{1}{4} = {c=2}{},
-  }
-  Current strength & transition~$/gamma$ &             & $(q_{*}(s=0, a=0), q_{*}(s=0, a=1))$ &                  \\
-                  & policy iter.        & value iter. & policy iter.                           & value iter.      \\
-  WEAK             & 0.65                & 0.65        & (0.0143, 0.0137)                       & (0.0143, 0.0137) \\
-  MEDIUM           & 0.76                & 0.76        & (0.0208, 0.0203)                       & (0.0208, 0.0203) \\
-  STRONG           & 0.92                & 0.92        & (0.0599, 0.0582)                       & (0.0599, 0.0582) 
-  \end{tblr}
+  \begin{table}[h!]
+  	\begin{center}
+ 	    \caption{Discount factor $\gamma$ and corresponding action value functions $q_{\ast}(s, a)$ for transitions to "swim left" action selection ($a = 0$) at initial state $s_{1}$ ($s = 0$)}.
+    	\begin{tabular}{c|c|c|c|c}
+        	\textbf{Current strength} & \multicolumn{2}{|c}{\textbf{transition $\gamma$}}  		& \multicolumn{2}{|c}{\textbf{$(q_{\ast}(s=0, a=0), q_{\ast}(s=0, a=1))$}} 			\\
+          \hline
+               					& policy iteration        	& value iteration 	& policy iteration                         	& value iteration  	\\
+    		  \hline
+        	WEAK   	          & 0.65                		& 0.65        		& (0.0143, 0.0137)                       		& (0.0143, 0.0137) 	\\
+        	MEDIUM           	& 0.76                		& 0.76        		& (0.0208, 0.0203)                       		& (0.0208, 0.0203) 	\\
+        	STRONG           	& 0.92                		& 0.92        		& (0.0599, 0.0582)                       		& (0.0599, 0.0582) 	\\
+   	\end{tabular}
+   	\end{center}
   \end{table}
-
-  The table above contains the values of \gamma (to 2 decimal places) for which the optimal agent transitioned from selecting "right" at 
-  the initial state, to when it instead selected "left" instead. These \gamma values of transition were calculated for both policy 
-  iteration and value iteration dynamic progamming algorithms across current strength settings WEAK, MEDIUM and STRONG of the Markov 
-  Process RiverSwim.
+  
+  The table above contains the values of discount factor $\gamma$ (to 2 decimal places) for which the optimal agent transitioned from selecting "swim right" at 
+  the initial state $s_{1}$ ($s = 0$), to when it selected "swim left" instead. These $\gamma$ values of transition were calculated for both policy 
+  iteration and value iteration dynamic programming algorithms across current strength settings WEAK, MEDIUM and STRONG of the Markov 
+  process RiverSwim.
 
   From the table, both policy and value iteration methods have identical transition discount factors for the three different 
-  current strengths, as well as identical action-value function returns that the optimal agent compared to favor left over right at the far-left 
-  initial state \s_{1}. Stronger current decreases the probability of successful swim right attempts in the
-  stochastic dynamical state transition matrix \T. Transition discount factors monotonically increased from WEAK to STRONG currents 
-  as the optimal agent required more foresight into expected future return (incentive) to overcome the reduced probability of 
-  success of actually swimming right after deciding to swim right.
+  current strengths, as well as identical action-value function returns that the optimal agent compared when selecting "swim left" over "swim right" at the leftmost 
+  initial state $s_{1}$. In RiverSwim, stronger current decreases the probability of successful "swim right" attempts in the
+  (stochastic) dynamical state transition function $T$. Transition discount factors ($\gamma$) monotonically increased from WEAK to STRONG currents 
+  as the optimal agent required greater weight from the reward at the rightmost state to compensate for reduced "swim right" success probabilities in the transition 
+  function in calculations of expected future return.
+  % ### END CODE HERE ###
+\end{answer}
+% <SCPD_SUBMISSION_TAG>_1f
 \clearpage
 
 
@@ -70,39 +71,68 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 
 % <SCPD_SUBMISSION_TAG>_2a
 \begin{answer}
-  % ### START CODE HERE ###
-  \definecolor{Shark}{rgb}{0.121,0.137,0.156}
-  \begin{table}
-  \centering
-  \caption{Discount factor and corresponding expected returns for transitions to "left" (a=0) action selection at initial state (s=0)}
-  \begin{tblr}{
-    cell{1}{2} = {c=2}{fg=Shark},
-    cell{1}{4} = {c=2}{},
-  }
-  Horizon \H  & Expected Return & Execution sequence under optimal policy, \gamma = 1      \\
-              &                 & (action, state transition, resultant reward) \\
-  4           & 3               & (sell, 3 \leftarrow 2, +1), (sell, 2 \leftarrow 1, +1), (sell, 0 \leftarrow 1, +1), (buy, 0 \leftarrow 1, 0) \\
-  4           & 3               & (buy, 3 \leftarrow 4, 0), (sell, 4 \leftarrow 3, +1), (sell, 3 \leftarrow 2, +1), (sell, 2 \leftarrow 1, +1) \\
-  5           & 4               & (sell, 3 \leftarrow 2, +1), (sell, 2 \leftarrow 1, +1), (sell, 0 \leftarrow 1, +1), (buy, 0 \leftarrow 1, 0), (sell, 0 \leftarrow 1, +1) \\
-  6           & 4               & (sell, 3 \leftarrow 2, +1), (sell, 2 \leftarrow 1, +1), (sell, 0 \leftarrow 1, +1), (buy, 0 \leftarrow 1, 0), (sell, 0 \leftarrow 1, +1), (buy, 0 \leftarrow 1, 0) \\
-  7           & 100             & (buy, 3 \leftarrow 4, 0), (buy, 4 \leftarrow 5, 0), (buy, 5 \leftarrow 6, 0), (buy, 6 \leftarrow 7, 0), (buy, 7 \leftarrow 8, 0), (buy, 8 \leftarrow 9, 0), (buy, 9 \leftarrow 10, 100) \\
-  8           & 100             & (buy, 3 \leftarrow 4, 0), (buy, 4 \leftarrow 5, 0), (buy, 5 \leftarrow 6, 0), (buy, 6 \leftarrow 7, 0), (buy, 7 \leftarrow 8, 0), (buy, 8 \leftarrow 9, 0), (buy, 9 \leftarrow 10, 100), (sell, 10 \leftarrow 10, 0) \\
-  9           & 101             & (sell, 3 \leftarrow 2, +1), (buy, 2 \leftarrow 3, 0), (buy, 3 \leftarrow 4, 0), (buy, 4 \leftarrow 5, 0), (buy, 5 \leftarrow 6, 0), (buy, 6 \leftarrow 7, 0), (buy, 7 \leftarrow 8, 0), (buy, 8 \leftarrow 9, 0), (buy, 9 \leftarrow 10, 100) \\
-  10          & 101             & < same as above for sequence entries 1 through 8 >, (buy, 9 \leftarrow 10, 100), (sell, 10 leftarrow 10, 0) \\
-  11          & 102             & (sell, 3 \leftarrow 2, +1),  (sell, 2 \leftarrow 1, +1), (buy, 1 \leftarrow 2, 0), (buy, 2 \leftarrow 3, 0), (buy, 3 \leftarrow 4, 0), (buy, 4 \leftarrow 5, 0), (buy, 5 \leftarrow 6, 0), (buy, 6 \leftarrow 7, 0), (buy, 7 \leftarrow 8, 0), (buy, 8 \leftarrow 9, 0), (buy, 9 \leftarrow 10, 100) \\
-  12          & 102             & < same as above for sequence entries 1 through 10 >, (buy, 9 \leftarrow 10, 100), (sell, 10 leftarrow 10, 0) \\
-  \end{tblr}
+   % ### START CODE HERE ###
+  An optimal policy is one that maximizes expected cumulative future return from the current time step to the episode horizon (Sutton \& Barto, 2nd ed. p).  While the expected cumulative future return of the value function is unique in Markov Decision Processes, there may be multiple distinct policies capable of producing it; that is, an optimal policy that results from policy (or value) iteration is not necessarily unique.  In the table below, two different sequences
+  are capable of producing the same expected return with the same horizon setting $H = 4$.
+  \begin{table}[h!]
+    \begin{center}
+    \caption{Table listing the expected future cumulative return without discounting ($\gamma = 1$) and the execution sequence under optimal policy across horizon values $H$}
+    \begin{tabular}{c|c|c}
+      Horizon $H$  & Expected Return & Execution sequence under optimal policy, $\gamma = 1$      \\
+                  &                 & (action, state transition, resultant reward) \\
+      \hline
+      \multirow{2}{*}{4} & \multirow{2}{*}{3} & $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, \\
+                             & & $(sell, 0 \rightarrow 1, +1)$, $(buy, 0 \rightarrow 1, 0)$ \\
+      \hline
+      \multirow{2}{*}{4} & \multirow{2}{*}{3} & $(buy, 3 \rightarrow 4, 0)$, $(sell, 4 \rightarrow 3, +1)$, \\
+                              & & $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$ \\
+      \hline
+      \multirow{3}{*}{5} & \multirow{3}{*}{4} & $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, \\
+                              & & $(sell, 0 \rightarrow 1, +1)$, $(buy, 0 \rightarrow 1, 0)$, \\
+                              & & $(sell, 0 \rightarrow 1, +1)$ \\
+      \hline
+  	  \multirow{3}{*}{6} & \multirow{3}{*}{4} & $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, \\
+							  & & $(sell, 0 \rightarrow 1, +1)$, $(buy, 0 \rightarrow 1, 0)$, \\
+							  & & $(sell, 0 \rightarrow 1, +1)$, $(buy, 0 \rightarrow 1, 0)$ \\
+	  \hline
+  	  \multirow{4}{*}{7} & \multirow{4}{*}{100} & $(buy, 3 \rightarrow 4, 0)$, $(buy, 4 \rightarrow 5, 0)$, \\
+	  						  & & $(buy, 5 \rightarrow 6, 0)$, $(buy, 6 \rightarrow 7, 0)$, \\
+							  & & $(buy, 7 \rightarrow 8, 0)$, $(buy, 8 \rightarrow 9, 0)$, \\
+							  & & $(buy, 9 \rightarrow 10, +100)$ \\
+	  \hline
+  	  \multirow{4}{*}{8} & \multirow{4}{*}{100} & $(buy, 3 \rightarrow 4, 0)$, $(buy, 4 \rightarrow 5, 0)$, \\
+	  						  & & $(buy, 5 \rightarrow 6, 0)$, $(buy, 6 \rightarrow 7, 0)$, \\
+							  & & $(buy, 7 \rightarrow 8, 0)$, $(buy, 8 \rightarrow 9, 0)$, \\
+							  & & $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 \rightarrow 10, 0)$ \\
+	  \hline
+  	  \multirow{5}{*}{9} & \multirow{5}{*}{101} & $(sell, 3 \rightarrow 2, +1)$, $(buy, 2 \rightarrow 3, 0)$, \\
+  							  & & $(buy, 3 \rightarrow 4, 0)$, $(buy, 4 \rightarrow 5, 0)$, \\
+							  & & $(buy, 5 \rightarrow 6, 0)$, $(buy, 6 \rightarrow 7, 0)$, \\
+							  & & $(buy, 7 \rightarrow 8, 0)$, $(buy, 8 \rightarrow 9, 0)$, \\
+							  & & $(buy, 9 \rightarrow 10, +100)$ \\
+	  \hline
+  	  \multirow{2}{*}{10} & \multirow{2}{*}{101} & < same as above for sequence entries 1 through 8 >, \\
+	   						  & & $(buy, 9 \rightarrow 10, +100)$, $(sell, 10 rightarrow 10, 0)$ \\
+	  \hline
+  	  \multirow{6}{*}{11} & \multirow{6}{*}{102} & $(sell, 3 \rightarrow 2, +1)$, $(sell, 2 \rightarrow 1, +1)$, \\
+	   						  & & $(buy, 1 \rightarrow 2, 0)$, $(buy, 2 \rightarrow 3, 0)$, \\ 
+							  & & $(buy, 3 \rightarrow 4, 0)$, $(buy, 4 \rightarrow 5, 0)$, \\
+							  & & $(buy, 5 \rightarrow 6, 0)$, $(buy, 6 \rightarrow 7, 0)$, \\
+							  & & $(buy, 7 \rightarrow 8, 0)$, $(buy, 8 \rightarrow 9, 0)$, \\
+							  & & $(buy, 9 \rightarrow 10, 100)$ \\
+	  \hline
+  	  \multirow{2}{*}{12} & \multirow{2}{*}{102} & < same as above for sequence entries 1 through 10 >, \\
+	  					      & & $(buy, 9 \rightarrow 10, 100)$, $(sell, 10 rightarrow 10, 0)$ \\
+    \end{tabular}
+    \end{center}
   \end{table}
-  An optimal policy is one that maximizes expected cumulative future return from the current time step to the horizon.  While the expected
-  cumulative future return is unique in Markov Decision Processes, there may be multiple distinct policies that generate it; that is, an 
-  optimal policy from policy or value iteration is not necessarily unique.
-  
-  For the Inventory MDP in this problem, an optimal policy can change dramatically depending on the number of steps that remain in the episode during 
-  execution before the horizon is reached.  Notice in the above table that expected return jumps from 4, for \H = 6, to 100 for \H = 7.  Also,
-  for the same two horizon settings execution sequences transistioned from having both buy and sell actions when \H = 6, to buy only action 
-  when \H = 7.
 
-Inspection of the table reveals that execution sequences under the optimal policy contain both buy and sell actions when 4 \lte H \lte 6 and when H \gte 8.
+  For the Inventory MDP in this problem, an optimal policy can change dramatically depending on the number of steps that remain in the episode during 
+  execution before the horizon is reached.  Notice in the above table that expected return jumps from 4, for $H = 6$, to 100 for $H = 7$.  Also,
+  for the same two horizon settings, execution sequences transitioned from having both $buy$ and $sell$ actions when $H = 6$, to $buy$ only action 
+  when $H = 7$.
+
+  Inspection of the table reveals that execution sequences under the optimal policy contain both buy and sell actions when $4 \le H \le 6$ and when $H \ge 8$.
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_2a
@@ -115,9 +145,9 @@ Inspection of the table reveals that execution sequences under the optimal polic
 % <SCPD_SUBMISSION_TAG>_2b
 \begin{answer}
   % ### START CODE HERE ###
-  Settin the horizon \H \gte 7 will result in an execution sequence under the optimal policy
-  that terminates with a fully stocked inventory.  See table. Notice that a fully stocked inventory
-  occurs regardless of whether the agent performs action selection in the terminal state s_{10} or
+  Setting the horizon $\H \ge 7$ will result in an execution sequence under the optimal policy
+  that terminates with a fully stocked inventory.  See above table. Notice that a fully stocked inventory
+  occurs regardless of whether the agent performs action selection in the terminal state $s_{10}$ or
   only enters into it without performing actions in that state.
   % ### END CODE HERE ###
 \end{answer}
@@ -133,13 +163,13 @@ Inspection of the table reveals that execution sequences under the optimal polic
   % ### START CODE HERE ###
   In an infinite-horizon scenario with discount factor setting \gamma = 0:
   1. When starting in state s = 3, the sequence of actions that the agent takes under the optimal
-  policy is (sell, 3 \leftarrow 2, +1), (sell, 2 \leftarrow 1, +1), (sell, 1 \leftarrow 0, +1), (sell, 0 \leftarrow 0, 0), (sell, 0 \leftarrow 0, 0), ...
-  ad infinitum.  The sequence cannot terminate as it never exits state transition 0 \leftarrow 0 loop 
-  caused by perpetual greedy action selection--the consequence of a myopic agent via setting \gamma = 0.
+  policy is (sell, 3 \rightarrow 2, +1), (sell, 2 \rightarrow 1, +1), (sell, 1 \rightarrow 0, +1), (sell, 0 \rightarrow 0, 0), (sell, 0 \rightarrow 0, 0), ...
+  ad infinitum.  The sequence cannot terminate as it never exits state transition 0 \rightarrow 0 loop 
+  caused by perpetual greedy action selection--the consequence of a myopic agent via setting $\gamma = 0$.
 
   2. Similarly, for the scenario starting as s = 9, the execution squence under the optimal policy migrates
   to the edge of the state space, in this case s = 10--the terminal state--due to the inability of the agent 
-  to consider non-local return possibilities.  The execution sequence is: (buy, 9 \leftarrow 10, 100), (sell, 10 \leftarrow 10, 0)
+  to consider non-local return possibilities.  The execution sequence is: (buy, 9 \rightarrow 10, 100), (sell, 10 \rightarrow 10, 0)
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_2c
@@ -152,15 +182,23 @@ Inspection of the table reveals that execution sequences under the optimal polic
 % <SCPD_SUBMISSION_TAG>_2d
 \begin{answer}
   % ### START CODE HERE ###
-  In the infinite-horizon scenario with reward discounting, it is possible 
-  to choose a fixed value \gamma \in \left[0, 1\right) such that the optimal 
-  policy never fully stocks the inventory. Setting \gamma to a value for which 
+  In the infinite-horizon scenario with reward discounting, it {\bf is} possible 
+  to choose a fixed value $\gamma \in \left[0, 1\right)$ such that the optimal 
+  policy never fully stocks the inventory. Setting $\gamma$ to a value for which 
   the cummulative expected discounted return for selling does not surpass that for buying at
-  state s = 3 would result in the inequality 100 \cdot \gamma^{6} \lt 1 + 1 \cdot \gamma + 1 \cdot \gamma^2.
-  Numerically estimating the real positive root for this polynomial equation we find \gamma \lt 0.5106.
-  Testing about this transition \gamma value under value iteration with tolerance 1e-3, we find that
-  the action selected at state s = 3 with discount factor set to \gamma=0.52 is sell--which would end with the inventory
-  fully stocked. Setting \gamma=0.51 results in selected action sell whereby the agent's policy would 
+  state $s = 3$ would result in the inequality 
+  \begin{center}
+  $$100 \cdot \gamma^{6} \lt 1 + \gamma \cdot 1 + \gamma^2 \cdot 1$$,
+  \end{center}
+  with the quantity on the left being the expected discounted future return if the agent acted to "buy" at 
+  state $s = 3$, and the quantity on the left being the expected discounted future return if the
+  agent chose to "sell" at that state.
+
+  The numerical estimate of the real positive root for the above polynomial is $\gamma \lt 0.5106$.
+  Testing about this transition $\gamma$ value under value iteration with tolerance $1e-3$, we find that
+  the action selected at state $ = 3$ with discount factor set to $\gamma = 0.52$ is "buy"--from which the 
+  sequence would end with the inventory fully stocked. Setting $\gamma = 0.51$, just under the theoretical 
+  value, results in selected action "sell" at state $s = 3$ whereby the agent's policy would 
   never fully stock the inventory at the end of the day.
   % ### END CODE HERE ###
 \end{answer}
