@@ -191,20 +191,20 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
   In the infinite-horizon scenario with reward discounting, it {\bf is} possible 
   to choose a fixed value $\gamma \in \left[0, 1\right)$ such that the optimal 
   policy never fully stocks the inventory. Setting $\gamma$ to a value for which 
-  the cummulative expected discounted return for selling does not surpass that for buying at
+  the expected cumulative discounted return for selling surpasses that for buying at
   state $s = 3$ would result in the inequality 
   \begin{center}
-  $$100 \cdot \gamma^{6} \lt 1 + \gamma \cdot 1 + \gamma^2 \cdot 1$$,
+  $$100 \cdot \gamma^{6} < 1 + \gamma \cdot 1 + \gamma^2 \cdot 1$$,
   \end{center}
-  with the quantity on the left being the expected discounted future return if the agent acted to "buy" at 
-  state $s = 3$, and the quantity on the left being the expected discounted future return if the
-  agent chose to "sell" at that state.
+  with the quantity on the left being the expected discounted future return if the agent acted to $buy$ at 
+  state $s = 3$, and the quantity on the right being the expected discounted future return if the
+  agent chose to $sell$ at that state.
 
-  The numerical estimate of the real positive root for the above polynomial is $\gamma \lt 0.5106$.
-  Testing about this transition $\gamma$ value under value iteration with tolerance $1e-3$, we find that
-  the action selected at state $ = 3$ with discount factor set to $\gamma = 0.52$ is "buy"--from which the 
+  The numerical estimate of the real positive root for the above polynomial is $\gamma < 0.5106$.
+  Testing about this transition $\gamma$ value under value iteration with tolerance $1e^{-3}$, we find that
+  the action selected at state $ = 3$ with discount factor set to $\gamma = 0.52$ is $buy$--from which the 
   sequence would end with the inventory fully stocked. Setting $\gamma = 0.51$, just under the theoretical 
-  value, results in selected action "sell" at state $s = 3$ whereby the agent's policy would 
+  value, results in selected action $sell$ at state $s = 3$ whereby the agent's policy would 
   never fully stock the inventory at the end of the day.
   % ### END CODE HERE ###
 \end{answer}
