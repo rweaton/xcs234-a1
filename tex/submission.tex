@@ -225,14 +225,14 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 \begin{answer}
   % ### START CODE HERE ###
   To answer this question, we'll consider a scenario in which three human-operated cars (labeled by $H$) are traveling at
-  the same speed along a roadway about to intercept on on-ramp on which is a single autonomous vehicle (labelled by $A$).
+  the same speed along a roadway about to intercept an on-ramp on which is a single autonomous vehicle (labelled by $A$).
   We will consider a constant distance $d$ spanning the mergepoint of the onramp onto the main roadway to another endpoint,
   say 1/4 mile farther down the road, and that all four vehicles will be traveling that stretch of road together without 
   any of them turning off. The event of the autonomous vehicle merging will be labeled by $M$ and when it is stopped on the
   on-ramp by $S$.
 
   If the autonomous car merges onto the main roadway with velocity $v_{A,M}$ ahead of the other three human-operated 
-  cars that were traveling at $v_{H,S} > v_{A,M}$ prior to the merge event, then the human operators adjust reduce their 
+  cars that were traveling at $v_{H,S} > v_{A,M}$ prior to the merge event, then the human operators must reduce their 
   speed to that of the autonomous vehicle to prevent collision.  In which case $v_{H, M} = v_{A, M}$.  So for the merge event
   mean velocity and average time of travel over distance $d$ are respectively
   \begin{center}
@@ -242,18 +242,22 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 
   If the autonomous car is not allowed to merge so that the car's average velocity $v_{A,S} \rightarrow 0$, then correspondingly,
   its average time of travel over distance $d$ becomes $t_{A,S} \rightarrow \infty$.  In this case of no merge event by 
-  the autonomous vehicle we have
+  the autonomous vehicle, we have
   \begin{center}
-    $$ \bar{v}_{S} = \lim{v_{A,S} to 0} \frac{1}{4} (3 v_{H,S} + v_{A,S}) = \frac{3}{4} v_{H,S}$$
-    $$ \bar{t}_{S} = \lim{v_{A,S} to 0} \frac{d}{4} (3 /frac{1}{v_{H,S}} + \frac{1}{v_{A,S}}) \approx \frac{d}{4 v_{H,S}} \rightarrow \infty $$
+    $$ \bar{v}_{S} = \lim_{v_{A,S} \to 0} \frac{1}{4} (3 v_{H,S} + v_{A,S}) = \frac{3}{4} v_{H,S}$$
+    $$ \bar{t}_{S} = \lim_{v_{A,S} \to 0} \frac{d}{4} (3 \frac{1}{v_{H,S}} + \frac{1}{v_{A,S}}) \approx \frac{d}{4 v_{A,S}} \rightarrow \infty $$
   \end{center}
 
   So, if $v_{H,S} > \frac{4}{3} v_{H,M}$ then $\bar{v}_{S} > \bar{v}_{M}$, that is, the average velocity of all four cars increases
-  eventhough the autonomous care remains motionless on the merge on-ramp. Notice that the average time of travel over distance $d$ in
+  even though the autonomous car remains motionless on the merge on-ramp. Notice that the average time of travel over distance $d$ in
   this case $\bar{t}_{S}$ is much greater than the average time when the autonomous car performs the merge $\bar{t}_{M}$ since
   \begin{center}
-    $$ \bar{t}_{M} = \frac{d}{v_{A,M}} \ll \lim{v_{A,S} to 0} \frac{d}{4 v_{H,S}} = \bar{t}_{S} $$
+    $$ \bar{t}_{M} = \frac{d}{v_{A,M}} \ll \lim_{v_{A,S} \to 0} \frac{d}{4 v_{A,S}} = \bar{t}_{S} $$
   \end{center}
+
+  Therefore, by using mean velocity as a proxy reward function in place of commute time in the above-described scenario 
+  (with $v_{H,S} > \frac{4}{3} v_{H,M}$), maximum mean velocity for the four cars is achieved by keeping the autonomous car stopped on the 
+  on-ramp as its merging would otherwise impede the velocity of the arterial cars and reduce the mean velocity for the entire group.
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_3a
@@ -267,6 +271,13 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 % <SCPD_SUBMISSION_TAG>_3b
 \begin{answer}
   % ### START CODE HERE ###
+  Without optimizing for commute (time) which has the requirement that origin, destination, etc. of all drivers be known
+  a prioi, an alternative proxy reward function could be to return rewards on desirable changes in shape of the velocity
+  distribution of all cars on the route. Returning rewards for positive shifts in median, reductions in variance
+  and reduction of distribution weight in the near zero velocity domain could reveal policies that encourage more cars to travel
+  at more uniform speeds. Unlike above, in which the reward function depended on a single summary statistic (e.g. the mean) that
+  effectively promoted faster moving cars staying fast at the expense of the slower minority effectively made
+  immobile, distribution shaping policies permit more detailed control over how potential policies can evolve.
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_3b
