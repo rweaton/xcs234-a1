@@ -272,12 +272,13 @@ instructions to regenerate this handout with your typeset \LaTeX{} solutions.
 \begin{answer}
   % ### START CODE HERE ###
   Without optimizing for commute (time) which has the requirement that origin, destination, etc. of all drivers be known
-  a prioi, an alternative proxy reward function could be to return rewards on desirable changes in shape of the velocity
+  \textit{a prioi}, an alternative proxy reward function could be to return rewards on desirable changes in shape of the velocity
   distribution of all cars on the route. Returning rewards for positive shifts in median, reductions in variance
   and reduction of distribution weight in the near zero velocity domain could reveal policies that encourage more cars to travel
   at more uniform speeds. Unlike above, in which the reward function depended on a single summary statistic (e.g. the mean) that
   effectively promoted faster moving cars staying fast at the expense of the slower minority effectively made
-  immobile, distribution shaping policies permit more detailed control over how potential policies can evolve.
+  immobile, distribution shaping policies permit more detailed control over how potential policies can evolve by considering
+  multiple desirable attributes in parallel.
   % ### END CODE HERE ###
 \end{answer}
 % <SCPD_SUBMISSION_TAG>_3b
