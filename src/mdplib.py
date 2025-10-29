@@ -185,7 +185,7 @@ if __name__ == "__main__":
     # discount_factor = 1
     # terminator = 11
     # discount_factor = 0.9
-    discount_factor = 0.52
+    discount_factor = 0.51
     terminator = 1e-3
     print(f"Value of R: {R}")
     print(f"Value of T: {T}")

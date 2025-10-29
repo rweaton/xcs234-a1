@@ -1,0 +1,125 @@
+\def\assignmentnum{1 }
+\def\assignmenttitle{XCS234 Assignment \assignmentnum}
+\input{macros}
+\usepackage{siunitx} 
+\usepackage{multirow}
+\usepackage{bm,bbm,amsmath,amsfonts,amssymb}
+\usepackage{xspace}
+\usepackage{eucal} 
+\usepackage{physics}
+\usepackage{derivative}
+\usepackage{amsmath}
+
+\def\S{{\cal S}}
+\def\A{{\cal A}}
+\def\P{{\cal P}}
+\def\R{{\cal R}}
+\def\D{{\cal D}}
+
+\begin{document}
+\pagestyle{myheadings} \markboth{}{\assignmenttitle}
+
+% <SCPD_SUBMISSION_TAG>_entire_submission
+
+This handout includes space for every question that requires a written response.
+Please feel free to use it to handwrite your solutions (legibly, please).  If
+you choose to typeset your solutions, the |README.md| for this assignment includes
+instructions to regenerate this handout with your typeset \LaTeX{} solutions.
+\ruleskip
+
+\LARGE
+2.a
+\normalsize
+% <SCPD_SUBMISSION_TAG>_2a
+\begin{answer}
+  % ### START CODE HERE ###
+  Here we will calculate the gradient of the loss of the reward estimate of a state action pair $\hat{r}(o, a)$ as approximated by a 
+  function $\phi_{w}(o,a)$ defined by parameters $w$. The gradient of the loss will be taken with respect to $w$.
+  
+  First off, the softmax function with two arguments can be expressed as a 
+  sigmoid.  For each of the probability functions within the Bradley-Terry preference model we see that
+  \begin{align}
+    \hat{P}[\sigma^{1} \succ \sigma^{2}] &= \frac{\exp(\sum_{t} \hat{r}(o^{1}_{t}, a^{1}_{t}))}{\exp(\sum_{t} \hat{r}(o^{1}_{t}, a^{1}_{t})) + \exp(\sum_{t} \hat{r}(o^{2}_{t}, a^{2}_{t}))} \\
+    &= \left[1 + \frac{\exp(\sum_{t} \hat{r}(o^{2}_{t}, a^{2}_{t}))}{\exp(\sum_{t} \hat{r}(o^{1}_{t}, a^{1}_{t}))}\right]^{-1} \\
+    &= \left[1 + \exp(-\sum_{t}(\hat{r}(o^{1}_{t}, a^{1}_{t}) - \hat{r}(o^{2}_{t}, a^{2}_{t})))\right]^{-1}.
+  \end{align}
+  Similarly,
+  \begin{align}
+    \hat{P}[\sigma^{2} \succ \sigma^{1}] &= \left[1 + \exp(-\sum_{t}(\hat{r}(o^{2}_{t}, a^{2}_{t}) - \hat{r}(o^{1}_{t}, a^{1}_{t})))\right]^{-1}.
+  \end{align}
+
+  If we substitute $\phi_{w}(o, a)$ for $\hat{r}(o, a)$ within  $\hat{P}[\sigma^{1} \succ \sigma^{2}]$ and $\hat{P}[\sigma^{2} \succ \sigma^{1}]$ of the Bradley-Terry preference model, we find
+  \begin{align}
+    \hat{P}[\sigma^{1} \succ \sigma^{2}] &= \left[1 + \exp(-\sum_{t}(\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \phi_{w}(o^{2}_{t}, a^{2}_{t})))\right]^{-1}\label{prob12_eq} \\
+    \hat{P}[\sigma^{2} \succ \sigma^{1}] &= \left[1 + \exp(-\sum_{t}(\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \phi_{w}(o^{1}_{t}, a^{1}_{t})))\right]^{-1}\label{prob21_eq}.
+  \end{align}
+
+  To encapsulate and simpify the notation for working through the gradient in subsequent steps, let's define
+  \begin{align}
+    s_{1} &= \sum_{t}\phi_{w}(o^{1}_{t}, a^{1}_{t})\label{s1_eq} \\
+    s_{2} &= \sum_{t}\phi_{w}(o^{2}_{t}, a^{2}_{t})\label{s2_eq}
+  \end{align}
+  so equations \ref{prob12_eq} and \ref{prob21_eq} may now be respectively expressed as
+  \begin{align}
+    \hat{P}[\sigma^{1} \succ \sigma^{2}] &= \left[1 + \exp(-(s_{1} - s_{2}))\right]^{-1}\label{p12_eq} \\
+    \hat{P}[\sigma^{2} \succ \sigma^{1}] &= \left[1 + \exp(-(s_{2} - s_{1}))\right]^{-1}.
+  \end{align}
+
+  Taking the gradient with respect to the parameters $w$ of the estimating function $\phi_{w}$ we find
+  \begin{align}
+    \nabla_{w} \hat{P}[\sigma^{1} \succ \sigma^{2}] &=  \frac{\exp(-(s_{1} - s_{2}))}{\left[1 + \exp(-(s_{1} - s_{2}))\right]^{2}} \nabla_{w}(s_{1} - s_{2})\label{grad_p12_eq} \\
+    \nabla_{w} \hat{P}[\sigma^{2} \succ \sigma^{1}] &=  \frac{\exp(-(s_{2} - s_{1}))}{\left[1 + \exp(-(s_{2} - s_{1}))\right]^{2}} \nabla_{w}(s_{2} - s_{1}).
+  \end{align}
+
+  We will substitute these two gradient expressions into the expression for the gradient of the loss function, $\nabla_{w} loss$, in steps to follow.
+  Now, at this stage we can express top-level differentiation of the loss as
+  \begin{equation}\label{grad_loss_eq}
+    \nabla_{w} loss = - \sum_{(\sigma^{1}, \sigma^{2}, \mu) \in \D} \mu(1) \nabla_{w} \log \hat{P}[\sigma^{1} \succ \sigma^{2}] + \mu(2) \nabla_{w} \log \hat{P}[\sigma^{2} \succ \sigma^{1}]
+  \end{equation}
+  and the gradients of the terms inside the sum are of the form
+  \begin{align}
+    \nabla_{w} \log \hat{P}[\sigma^{1} \succ \sigma^{2}] &= \frac{\nabla_{w} \hat{P}[\sigma^{1} \succ \sigma^{2}]}{\hat{P}[\sigma^{1} \succ \sigma^{2}]}\label{grad_log_p12_high_level} \\
+    \nabla_{w} \log \hat{P}[\sigma^{2} \succ \sigma^{1}] &= \frac{\nabla_{w} \hat{P}[\sigma^{2} \succ \sigma^{1}]}{\hat{P}[\sigma^{2} \succ \sigma^{1}]}.
+  \end{align}
+
+  So if we substitute \ref{p12_eq} and \ref{grad_p12_eq} into \ref{grad_log_p12_high_level} we find
+  \begin{align}
+    \nabla_{w} \log \hat{P}[\sigma^{1} \succ \sigma^{2}] &= \frac{\exp(-(s_{1} - s_{2})) \left[1 + \exp(-(s_{1} - s_{2}))\right]}{\left[1 + \exp(-(s_{1} - s_{2}))\right]^{2}} \nabla_{w}(s_{1} - s_{2}) \\
+    &= \frac{\exp(-(s_{1} - s_{2}))\nabla_{w}(s_{1} - s_{2})}{\left[1 + \exp(-(s_{1} - s_{2}))\right]} \frac{\exp((s_{1} - s_{2}))}{\exp((s_{1} - s_{2}))} \\
+    &= \frac{-\nabla_{w}(s_{2} - s_{1})}{1 + \exp(-\left[s_{2} - s_{1}\right])}\label{grad_log_p12_eq}.
+  \end{align}
+
+  By a similar series of operations
+  \begin{equation}\label{grad_log_p21_eq}
+    \nabla_{w} \log \hat{P}[\sigma^{2} \succ \sigma^{1}] = \frac{-\nabla_{w}(s_{1} - s_{2})}{1 + \exp(-\left[s_{1} - s_{2}\right])}.
+  \end{equation}
+
+  By substituting equalities \ref{grad_log_p12_eq} and \eqref{grad_log_p21_eq} into \eqref{grad_loss_eq} we can now express the gradient of the loss as
+  \begin{equation}\label{grad_loss_compact}
+    \nabla_{w} loss = \sum_{(\sigma^{1}, \sigma^{2}, \mu) \in \D} \mu(1) \frac{\nabla_{w}(s_{2} - s_{1})}{1 + \exp(-\left[s_{2} - s_{1}\right])} + \mu(2) \frac{\nabla_{w}(s_{1} - s_{2})}{1 + \exp(-\left[s_{1} - s_{2}\right])}.
+  \end{equation}
+
+  Finally, re-inserting equalities for $s_{1}$ and $s_{2}$ into \ref{grad_loss_compact} we are left with the final expression
+  \begin{align}
+    \nabla_{w} loss(\phi_{w}) = \sum_{(\sigma^{1}, \sigma^{2}, \mu) \in \D} &\mu(1) \frac{\nabla_{w}(\sum_{t}\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \sum_{t}\phi_{w}(o^{1}_{t}, a^{1}_{t}))}{1 + \exp\left(-\left[\sum_{t}\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \sum_{t}\phi_{w}(o^{1}_{t}, a^{1}_{t})\right]\right)} + \\ &\mu(2) \frac{\nabla_{w}(\sum_{t}\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \sum_{t}\phi_{w}(o^{2}_{t}, a^{2}_{t}))}{1 + \exp\left(-\left[\sum_{t}\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \sum_{t}\phi_{w}(o^{2}_{t}, a^{2}_{t})\right]\right)}
+  \end{align}
+  which may be simplified as
+  \begin{align}
+    \nabla_{w} loss(\phi_{w}) = \sum_{(\sigma^{1}, \sigma^{2}, \mu) \in \D} &\mu(1) \frac{\sum_{t}\left[\nabla_{w}\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \nabla_{w}\phi_{w}(o^{1}_{t}, a^{1}_{t})\right]}{1 + \exp\left(-\sum_{t}\left[\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \phi_{w}(o^{1}_{t}, a^{1}_{t})\right]\right)} + \\  &\mu(2) \frac{\sum_{t}\left[\nabla_{w}\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \nabla_{w}\phi_{w}(o^{2}_{t}, a^{2}_{t})\right]}{1 + \exp\left(-\sum_{t}\left[\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \phi_{w}(o^{2}_{t}, a^{2}_{t})\right]\right)}
+  \end{align}
+  by the linearity of the sum operator and since
+  \begin{equation}
+    \nabla_{w}\left(\sum_{t} \phi_{w}(o_{t}, a_{t})\right) = \sum_{t} \nabla_{w}\phi_{w}(o_{t}, a_{t}). \\
+  \end{equation}
+
+  Noticing that in each of the terms, one over the denominator constitutes a sigmoid function, the gradient of the loss in terms of $w$
+  may be more neatly expressed as
+  \begin{align}
+    \nabla_{w} loss(\phi_{w}) = \sum_{(\sigma^{1}, \sigma^{2}, \mu) \in \D} &\mu(1) \cdot Sigmoid \left(\sum_{t}\left[\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \phi_{w}(o^{1}_{t}, a^{1}_{t})\right]\right) \sum_{t}\left[\nabla_{w}\phi_{w}(o^{2}_{t}, a^{2}_{t}) - \nabla_{w}\phi_{w}(o^{1}_{t}, a^{1}_{t})\right] + \\ &\mu(2) \cdot Sigmoid\left(\sum_{t}\left[\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \phi_{w}(o^{2}_{t}, a^{2}_{t})\right]\right) \sum_{t}\left[\nabla_{w}\phi_{w}(o^{1}_{t}, a^{1}_{t}) - \nabla_{w}\phi_{w}(o^{2}_{t}, a^{2}_{t})\right].
+  \end{align}
+  \cite{NIPS2017_d5e2c0ad}
+  \cite{19ff28b9-64f9-3656-ba40-08326a05748e}
+  % ### END CODE HERE ###
+\end{answer}
+% <SCPD_SUBMISSION_TAG>_2a
+\end{document}
